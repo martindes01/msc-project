@@ -1,3 +1,10 @@
+# Ignore auxiliary LaTeX files
+*.aux
+*.log
+
+# Ignore main LaTeX output
+*.pdf
+
 # Ignore miscellaneous work files
 _resources/
 quizzes/
