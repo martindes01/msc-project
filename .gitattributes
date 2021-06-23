@@ -1,2 +1,3 @@
 # Specify diff drivers
 *.md    diff=markdown
+*.tex   diff=tex
