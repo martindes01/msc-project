@@ -1,3 +1,4 @@
 # Specify diff drivers
+*.bib   diff=bibtex
 *.md    diff=markdown
 *.tex   diff=tex
