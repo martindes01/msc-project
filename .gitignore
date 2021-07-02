@@ -1,6 +1,9 @@
 # Ignore auxiliary LaTeX files
 *.aux
+*.bbl
+*.blg
 *.log
+*.out
 
 # Ignore main LaTeX output
 *.pdf
