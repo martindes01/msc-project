@@ -1,4 +1,5 @@
 # Specify diff drivers
 *.bib   diff=bibtex
+*.java  diff=java
 *.md    diff=markdown
 *.tex   diff=tex
