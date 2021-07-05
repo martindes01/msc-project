@@ -1,4 +1,8 @@
+# Use CRLF for files intended specifically for Windows
+*.bat   text eol=crlf
+
 # Specify diff drivers
 *.bib   diff=bibtex
+*.java  diff=java
 *.md    diff=markdown
 *.tex   diff=tex

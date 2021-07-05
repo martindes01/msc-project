@@ -8,6 +8,23 @@
 # Ignore main LaTeX output
 *.pdf
 
+# Ignore Eclipse configuration files
+.settings/
+.classpath
+.project
+
+# Ignore Eclipse output directory
+bin/
+
+# Ignore Gradle project-specific cache directory
+.gradle/
+
+# Ignore Gradle build output directory
+build/
+
+# Ignore Visual Studio Code configuration directory
+.vscode/
+
 # Ignore miscellaneous work files
 _resources/
 quizzes/

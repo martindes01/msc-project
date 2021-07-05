@@ -1,0 +1,3 @@
+rootProject.name = 'mld705'
+
+include('lib')
