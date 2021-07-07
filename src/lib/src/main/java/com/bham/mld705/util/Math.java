@@ -8,6 +8,10 @@ public final class Math {
         throw new AssertionError();
     }
 
+    public static boolean isBitSet(long number, int bit) {
+        return ((number >> bit) & LSB_MASK) == LSB_MASK;
+    }
+
     public static long squareModulo(long base, long modulus) {
         return (base * base) % modulus;
     }
@@ -17,12 +21,12 @@ public final class Math {
             throw new IllegalArgumentException("Cannot raise base to negative exponent: " + exponent);
         }
 
-        long result = ((exponent & LSB_MASK) == LSB_MASK) ? base : 1L;
+        long result = isBitSet(exponent, 0) ? base : 1L;
 
         for (int i = 1, bits = Long.SIZE - Long.numberOfLeadingZeros(exponent); i < bits; i++) {
             base = squareModulo(base, modulus);
 
-            if (((exponent >> i) & LSB_MASK) == LSB_MASK) {
+            if (isBitSet(exponent, i)) {
                 result = (result * base) % modulus;
             }
         }
