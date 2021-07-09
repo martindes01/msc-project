@@ -1,9 +1,18 @@
 plugins {
     id 'java-library'
+    id 'scala'
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
     }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.spark:spark-core_2.12:3.1.2'
 }
