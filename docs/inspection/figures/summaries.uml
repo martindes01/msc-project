@@ -1,0 +1,23 @@
+@startuml
+hide members
+
+interface Summary
+
+interface MultisetSummary extends Summary
+
+interface IdentificationSummary extends MultisetSummary
+
+interface FrequencySummary extends MultisetSummary
+
+interface RankSummary extends MultisetSummary
+
+interface QuantileSummary extends MultisetSummary
+
+class Fingerprint implements IdentificationSummary
+
+class CountSketch implements FrequencySummary
+
+class DyadicCountSketch implements RankSummary, QuantileSummary
+
+DyadicCountSketch *-- "*" CountSketch
+@enduml
