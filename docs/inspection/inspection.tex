@@ -12,6 +12,8 @@
 \institute[]{University of Birmingham}
 \date{Project Inspection}
 
+\usepackage{pgfgantt} % Draw Gantt charts with TikZ
+
 \begin{document}
 
 \begin{frame}
@@ -78,6 +80,16 @@
 
   \begin{center}
     \scalebox{0.5}{\input{figures/summaries.tex}}
+  \end{center}
+\end{frame}
+
+\section{Milestones}
+
+\begin{frame}
+  \frametitle{Milestones}
+
+  \begin{center}
+    \input{figures/gantt-chart.tex}
   \end{center}
 \end{frame}
 
