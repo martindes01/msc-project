@@ -1,0 +1,46 @@
+\begin{ganttchart}[
+  vgrid,
+  x unit = 0.6cm,
+  y unit chart = 0.7cm,
+  y unit title = 0.5cm,
+  title height = 1,
+  title label font = \scriptsize,
+  today = 5,
+  today label = {Current week},
+  today label font = \scriptsize,
+  today offset = 0.5,
+  bar/.append style = {fill=structure.fg!30},
+  bar height = 0.5,
+  bar label font = \scriptsize,
+  milestone height = 0.5,
+  milestone label font = \scriptsize,
+]{1}{14}
+  \gantttitlelist{1,...,14}{1} \\
+
+  \ganttbar[
+    name = literature-review-bar,
+  ]{Literature review}{1}{9} \\[grid]
+
+  \ganttmilestone{Proposal}{2} \\
+  \ganttlinkedbar{Planning}{3}{3} \\[grid]
+
+  \ganttlinkedbar{Fingerprint}{4}{5} \\
+  \ganttlinkedbar{Count sketch}{6}{7} \\
+  \ganttlinkedbar[
+    name = dyadic-count-sketch-bar,
+  ]{Dyadic count sketch}{8}{9} \\[grid]
+
+  \ganttlinkedbar{Prepare demonstration}{10}{12} \\
+  \ganttlinkedmilestone[
+    milestone left shift = 0.1,
+    milestone right shift = -0.1,
+  ]{Demonstration}{12} \\[grid]
+
+  \ganttbar[
+    name = dissertation-bar,
+  ]{Prepare dissertation}{10}{13} \\
+  \ganttlinkedmilestone{Submission}{13}
+
+  \ganttlink{literature-review-bar}{dissertation-bar}
+  \ganttlink{dyadic-count-sketch-bar}{dissertation-bar}
+\end{ganttchart}

@@ -1,0 +1,96 @@
+\documentclass{beamer}
+
+\useoutertheme{infolines}
+
+\setbeamertemplate{headline}[default]
+\setbeamertemplate{footline}[infolines]
+\setbeamertemplate{navigation symbols}{}
+
+\title[Streaming Algorithms]{Theory and Proof-of-Concept Implementations \\ of Streaming Algorithms for Multiset Data}
+\subtitle{MSc Computer Science Project}
+\author{Martin de Spirlet}
+\institute[]{University of Birmingham}
+\date{Project Inspection}
+
+\usepackage{pgfgantt} % Draw Gantt charts with TikZ
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\section{Background}
+
+\begin{frame}
+  \frametitle{Background}
+
+  \begin{block}{Problem}
+    \begin{itemize}
+      \item Modern applications generate big data
+      \item Difficult to store and process
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{Solution}
+    \begin{itemize}
+      \item Short summaries or `sketches' constructed in a single pass
+      \item Trade accuracy for reduced space and time complexity
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{Applications}
+    \begin{itemize}
+      \item Medicine
+      \item Science
+      \item Business
+      \item Social media
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\section{Aims and Objectives}
+
+\begin{frame}
+  \frametitle{Aims and Objectives}
+
+  \begin{block}{Aims}
+    \begin{itemize}
+      \item Investigate streaming algorithms and their applications.
+      \item Implement the \alert{fingerprint}, \alert{count sketch} and \alert{dyadic count sketch} from scratch to create a small library in Java.
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{Objectives}
+    Each algorithm is to be
+    \begin{itemize}
+      \item understood theoretically,
+      \item expressed formally in pseudocode,
+      \item analysed in order to understand its correctness,
+      \item implemented in Java, and
+      \item tested/evaluated on standard datasets.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\section{Deliverables}
+
+\begin{frame}
+  \frametitle{Deliverables}
+
+  \begin{center}
+    \scalebox{0.5}{\input{figures/summaries.tex}}
+  \end{center}
+\end{frame}
+
+\section{Milestones}
+
+\begin{frame}
+  \frametitle{Milestones}
+
+  \begin{center}
+    \input{figures/gantt-chart.tex}
+  \end{center}
+\end{frame}
+
+\end{document}
