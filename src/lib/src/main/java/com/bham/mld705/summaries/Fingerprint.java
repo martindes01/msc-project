@@ -7,20 +7,21 @@ import com.bham.mld705.util.Math;
 
 /**
  * A thread-safe implementation of {@code IdentificationSummary}. This class
- * overrides {@code Object.equals()} and {@code Object.hashCode()} such that if
- * two {@code Fingerprint} objects are equal, there is a high probability that
- * they are built from the same multiset. If they are not equal, they must be
- * built from different multisets. For two {@code Fingerprint} objects to be
- * equal, they must have the same base and hash value. To ensure that two
- * {@code Fingerprint} objects have the same base, an existing
- * {@code Fingerprint} can be copied using {@code copy()} and reset using
- * {@code reset()}.
+ * overrides {@code Object.equals(Object)} and {@code Object.hashCode()} such
+ * that if two {@code Fingerprint} objects are equal, there is a high
+ * probability that they are built from the same multiset. If they are not
+ * equal, they must be built from different multisets. For two
+ * {@code Fingerprint} objects to be equal, they must have the same base and
+ * hash value. Additionally, for two {@code Fingerprint} objects to be
+ * mergeable, they must have the same base. To ensure that this is the case, an
+ * existing {@code Fingerprint} can be copied using {@code copy()} and reset
+ * using {@code reset()}.
  *
  * @author Martin de Spirlet
  * @see #copy()
  * @see #equals(Object)
- * @see #getHashValue()
  * @see #hashCode()
+ * @see #merge(Fingerprint)
  * @see #reset()
  * @see IdentificationSummary
  * @see MultisetSummary
