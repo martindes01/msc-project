@@ -32,7 +32,7 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
     private static final long PRIME = 3037000493L;
     private static final long ZERO_HASH_VALUE = 0L;
 
-    private final long base;
+    private final long BASE;
 
     private long hashValue;
 
@@ -42,8 +42,9 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
      * @param fingerprint the {@code Fingerprint} to copy
      */
     private Fingerprint(Fingerprint fingerprint) {
-        this.base = fingerprint.base;
-        this.hashValue = fingerprint.hashValue;
+        BASE = fingerprint.BASE;
+
+        hashValue = fingerprint.hashValue;
     }
 
     /**
@@ -52,7 +53,8 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
      * @param base the base of the new {@code Fingerprint}
      */
     private Fingerprint(long base) {
-        this.base = base;
+        BASE = base;
+
         reset();
     }
 
@@ -90,7 +92,7 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
     @Override
     public synchronized void update(int item, int weight) {
         try {
-            hashValue = (hashValue + weight * Math.raiseNonNegativeModulo(base, item, PRIME)) % PRIME;
+            hashValue = (hashValue + weight * Math.raiseNonNegativeModulo(BASE, item, PRIME)) % PRIME;
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Cannot update Fingerprint with negative item: " + item, e);
         }
@@ -122,7 +124,7 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
      */
     @Override
     public synchronized void merge(Fingerprint other) {
-        if (base != other.base) {
+        if (BASE != other.BASE) {
             throw new IllegalArgumentException(
                     "Cannot merge Fingerprints with different bases: " + base + " and " + other.base);
         }
@@ -164,7 +166,7 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
 
         Fingerprint other = (Fingerprint) obj;
 
-        return (base == other.base) && (hashValue == other.hashValue);
+        return (BASE == other.BASE) && (hashValue == other.hashValue);
     }
 
     /**
@@ -180,7 +182,7 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
      */
     @Override
     public synchronized int hashCode() {
-        return Objects.hash(base, hashValue);
+        return Objects.hash(BASE, hashValue);
     }
 
     /**
@@ -190,7 +192,7 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
      */
     @Override
     public synchronized String toString() {
-        return "Fingerprint [base=" + base + ", hashValue=" + hashValue + "]";
+        return "Fingerprint [BASE=" + BASE + ", hashValue=" + hashValue + "]";
     }
 
 }
