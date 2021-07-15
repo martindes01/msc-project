@@ -126,7 +126,7 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
     public synchronized void merge(Fingerprint other) {
         if (BASE != other.BASE) {
             throw new IllegalArgumentException(
-                    "Cannot merge Fingerprints with different bases: " + base + " and " + other.base);
+                    "Cannot merge Fingerprints with different bases: " + this + " and " + other);
         }
 
         hashValue = (hashValue + other.hashValue) % PRIME;
