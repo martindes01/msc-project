@@ -8,7 +8,7 @@ package com.bham.mld705.util;
  */
 public final class Math {
 
-    private static final byte LSB_MASK = 0b00000001;
+    private static final long LSB_MASK = 0x0000_0000_0000_0001;
 
     /**
      * Provides a private no-argument constructor that prevents this class from
@@ -63,7 +63,7 @@ public final class Math {
      * @see Long#MAX_VALUE
      */
     public static long raiseNonNegativeModulo(long base, long exponent, long modulus) {
-        if (exponent < 0) {
+        if (exponent < 0L) {
             throw new IllegalArgumentException("Cannot raise base to negative exponent: " + exponent);
         }
 
