@@ -15,7 +15,7 @@ import org.apache.spark.util.AccumulatorV2;
  */
 public abstract class SummaryAccumulator<U, S extends Summary<S>> extends AccumulatorV2<U, S> {
 
-    private S summary;
+    private final S SUMMARY;
 
     private boolean zero;
 
@@ -28,7 +28,7 @@ public abstract class SummaryAccumulator<U, S extends Summary<S>> extends Accumu
      * @see Summary
      */
     protected SummaryAccumulator(S summary) {
-        this.summary = summary;
+        this.SUMMARY = summary;
     }
 
     /**
@@ -82,7 +82,7 @@ public abstract class SummaryAccumulator<U, S extends Summary<S>> extends Accumu
      */
     @Override
     public S value() {
-        return summary;
+        return SUMMARY;
     }
 
 }
