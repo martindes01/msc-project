@@ -14,6 +14,7 @@ import scala.Tuple2;
  *
  * @author Martin de Spirlet
  * @see MultisetSummaryAccumulator
+ * @see SummaryAccumulator
  * @see Fingerprint
  */
 public final class FingerprintAccumulator extends MultisetSummaryAccumulator<Fingerprint> {
@@ -42,9 +43,9 @@ public final class FingerprintAccumulator extends MultisetSummaryAccumulator<Fin
     }
 
     /**
-     * Returns a defensive copy of this {@code Fingerprint}.
+     * Returns a defensive copy of this {@code FingerprintAccumulator}.
      *
-     * @return a defensive copy of this {@code Fingerprint}
+     * @return a defensive copy of this {@code FingerprintAccumulator}
      * @see Fingerprint
      */
     @Override
