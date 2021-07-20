@@ -1,5 +1,7 @@
 package com.bham.mld705.util;
 
+import java.util.Arrays;
+
 /**
  * A class that provides static utility methods for various mathematical
  * operations.
@@ -78,6 +80,13 @@ public final class Math {
         }
 
         return result;
+    }
+
+    public static int sortAndGetMedian(int[] array) {
+        Arrays.sort(array);
+
+        return ((array.length % 2) == 0) ? (array[array.length / 2 - 1] + array[array.length / 2]) / 2
+                : array[(array.length - 1) / 2];
     }
 
 }
