@@ -82,6 +82,15 @@ public final class Math {
         return result;
     }
 
+    /**
+     * Sorts the given array of integers and returns the median. If the number of
+     * elements is odd, the median is the middle element after sorting. If the
+     * number of elements is even, the median is the integral part of the arithmetic
+     * mean of the two middle elements after sorting.
+     *
+     * @param array the array of integers whose median to return
+     * @return the median of the given array of integers
+     */
     public static int sortAndGetMedian(int[] array) {
         Arrays.sort(array);
 
