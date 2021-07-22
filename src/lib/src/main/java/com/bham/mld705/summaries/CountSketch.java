@@ -6,6 +6,21 @@ import com.bham.mld705.util.Math;
 import com.bham.mld705.util.hashfunctions.HashFunction;
 import com.bham.mld705.util.hashfunctions.LinearHashFunction;
 
+/**
+ * A thread-safe implementation of {@code FrequencySummary}. For two
+ * {@code CountSketch} objects to be mergeable, they must have the same number
+ * of rows, number of columns, hash functions and discriminator functions. To
+ * ensure that this is the case, an existing {@code CountSketch} can be copied
+ * using {@code copy()} and reset using {@code reset()}.
+ *
+ * @author Martin de Spirlet
+ * @see #copy()
+ * @see #merge(CountSketch)
+ * @see #reset()
+ * @see FrequencySummary
+ * @see MultisetSummary
+ * @see Summary
+ */
 public final class CountSketch implements FrequencySummary<CountSketch> {
 
     private static final int PRIME = Integer.MAX_VALUE;
@@ -20,6 +35,11 @@ public final class CountSketch implements FrequencySummary<CountSketch> {
 
     private int[][] sketch;
 
+    /**
+     * Constructs a copy of the given {@code CountSketch}.
+     *
+     * @param countSketch the {@code CountSketch} to copy
+     */
     private CountSketch(CountSketch countSketch) {
         COLUMNS = countSketch.COLUMNS;
         ROWS = countSketch.ROWS;
@@ -30,6 +50,13 @@ public final class CountSketch implements FrequencySummary<CountSketch> {
         sketch = Arrays.stream(countSketch.sketch).map(int[]::clone).toArray(int[][]::new);
     }
 
+    /**
+     * Constructs a new {@code CountSketch} with the given number of rows and number
+     * of columns.
+     *
+     * @param rows    the number of rows of the new {@code CountSketch}
+     * @param columns the number of columns of the new {@code CountSketch}
+     */
     public CountSketch(int rows, int columns) {
         ROWS = rows;
         COLUMNS = columns;
@@ -45,6 +72,14 @@ public final class CountSketch implements FrequencySummary<CountSketch> {
         reset();
     }
 
+    /**
+     * Returns the approximate frequency of the given item in the multiset from
+     * which this {@code CountSketch} is built.
+     *
+     * @param item the item whose frequency to get
+     * @return the approximate frequency of the given item in the multiset from
+     *         which this {@code CountSketch} is built
+     */
     @Override
     public synchronized int getFrequency(int item) {
         int[] frequencies = new int[ROWS];
@@ -59,6 +94,13 @@ public final class CountSketch implements FrequencySummary<CountSketch> {
         return Math.sortAndGetMedian(frequencies);
     }
 
+    /**
+     * Updates the representation of the given item in this {@code CountSketch} by
+     * the corresponding weight.
+     *
+     * @param item   the item to update
+     * @param weight the weight by which to update the item
+     */
     @Override
     public synchronized void update(int item, int weight) {
         for (int i = 0; i < ROWS; i++) {
@@ -69,11 +111,33 @@ public final class CountSketch implements FrequencySummary<CountSketch> {
         }
     }
 
+    /**
+     * Returns a defensive copy of this {@code CountSketch}. This includes its
+     * number of rows, number of columns, hash functions, discriminator functions
+     * and sketch array.
+     *
+     * @return a defensive copy of this {@code CountSketch}
+     */
     @Override
     public synchronized CountSketch copy() {
         return new CountSketch(this);
     }
 
+    /**
+     * Merges the given {@code CountSketch} into this {@code CountSketch}. For two
+     * {@code CountSketch} objects to be merged, they must have the same number of
+     * rows, number of columns, hash functions and discriminator functions. To
+     * ensure that this is the case, an existing {@code CountSketch} can be copied
+     * using {@code copy()} and reset using {@code reset()}.
+     *
+     * @param other the {@code CountSketch} to merge into this {@code CountSketch}
+     * @throws IllegalArgumentException if the other {@code CountSketch} does not
+     *                                  have the same number of rows, number of
+     *                                  columns, hash functions and discriminator
+     *                                  functions as this {@code CountSketch}
+     * @see #copy()
+     * @see #reset()
+     */
     @Override
     public synchronized void merge(CountSketch other) {
         if ((ROWS != other.ROWS) || (COLUMNS != other.COLUMNS) || !Arrays.equals(HASH_FUNCTIONS, other.HASH_FUNCTIONS)
@@ -90,11 +154,20 @@ public final class CountSketch implements FrequencySummary<CountSketch> {
         }
     }
 
+    /**
+     * Resets this {@code CountSketch} to its initial state. This sets its sketch
+     * array elements to zero.
+     */
     @Override
     public synchronized void reset() {
         sketch = new int[ROWS][COLUMNS];
     }
 
+    /**
+     * Returns a {@code String} that represents this {@code CountSketch}.
+     *
+     * @return a {@code String} that represents this {@code CountSketch}
+     */
     @Override
     public synchronized String toString() {
         return "CountSketch [ROWS=" + ROWS + ", COLUMNS=" + COLUMNS + ", HASH_FUNCTIONS="
