@@ -2,7 +2,7 @@ package com.bham.mld705.summaries;
 
 import java.util.Arrays;
 
-public final class DyadicCountSketch {
+public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketch>, RankSummary<DyadicCountSketch> {
 
     /**
      * An implementation of {@code FrequencySummary} that simply holds a counter for
@@ -146,6 +146,117 @@ public final class DyadicCountSketch {
                     + "]";
         }
 
+    }
+
+    private static final int LEVELS = Integer.SIZE;
+
+    private final int COLUMNS;
+    private final int ROWS;
+    private final int THRESHOLD_LEVEL;
+
+    private FrequencySummary[] summaries;
+
+    private DyadicCountSketch(DyadicCountSketch dyadicCountSketch) {
+        COLUMNS = dyadicCountSketch.COLUMNS;
+        ROWS = dyadicCountSketch.ROWS;
+        THRESHOLD_LEVEL = dyadicCountSketch.THRESHOLD_LEVEL;
+
+        summaries = Arrays.stream(dyadicCountSketch.summaries).map(Summary::copy).toArray(FrequencySummary[]::new);
+    }
+
+    public DyadicCountSketch(int rows, int columns) {
+        ROWS = rows;
+        COLUMNS = columns;
+
+        THRESHOLD_LEVEL = LEVELS - Integer.numberOfLeadingZeros(Integer.MAX_VALUE / (ROWS * COLUMNS)) + 1;
+
+        reset();
+    }
+
+    @Override
+    public synchronized int getItem(int rank) {
+        int item = -1;
+        int cumulativeRank = 0;
+
+        int i = LEVELS - 1;
+        while (true) {
+            int frequency = summaries[i].getFrequency(item);
+
+            if ((cumulativeRank + frequency) < rank) {
+                ++item;
+                cumulativeRank += frequency;
+            }
+
+            if (--i < 0) {
+                break;
+            }
+
+            item <<= 1;
+        }
+
+        return item;
+    }
+
+    @Override
+    public synchronized int getRank(int item) {
+        int rank = 0;
+
+        for (int i = 0; i < LEVELS; i++) {
+            if ((item % 2) != 0) {
+                rank += summaries[i].getFrequency(item - 1);
+            }
+
+            item >>>= 2;
+        }
+
+        return rank;
+    }
+
+    @Override
+    public synchronized void update(int item, int weight) {
+        for (int i = 0; i < LEVELS; i++) {
+            summaries[i].update(item, weight);
+
+            item >>>= 2;
+        }
+    }
+
+    @Override
+    public synchronized DyadicCountSketch copy() {
+        return new DyadicCountSketch(this);
+    }
+
+    @Override
+    public synchronized void merge(DyadicCountSketch other) {
+        try {
+            for (int i = 0; i < LEVELS; i++) {
+                summaries[i].merge(other.summaries[i]);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Cannot merge DyadicCountSketches whose corresponding pairs of constituent CountSketches and FrequencyTables are not mergeable: "
+                            + this + " and " + other,
+                    e);
+        }
+    }
+
+    @Override
+    public synchronized void reset() {
+        summaries = new FrequencySummary[LEVELS];
+
+        for (int i = 0; i < THRESHOLD_LEVEL; i++) {
+            summaries[i] = new CountSketch(ROWS, COLUMNS);
+        }
+
+        for (int i = THRESHOLD_LEVEL; i < LEVELS; i++) {
+            summaries[i] = new FrequencyTable(1 << (LEVELS - i));
+        }
+    }
+
+    @Override
+    public synchronized String toString() {
+        return "DyadicCountSketch [ROWS=" + ROWS + ", COLUMNS=" + COLUMNS + ", THRESHOLD_LEVEL=" + THRESHOLD_LEVEL
+                + ", summaries=" + Arrays.toString(summaries) + "]";
     }
 
 }
