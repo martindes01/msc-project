@@ -2,6 +2,25 @@ package com.bham.mld705.summaries;
 
 import java.util.Arrays;
 
+/**
+ * A thread-safe implementation of {@code QuantileSummary} and
+ * {@code RankSummary}. For two {@code DyadicCountSketch} objects to be
+ * mergeable, each corresponding pair of their constituent {@code CountSketch}
+ * and {@code FrequencyTable} objects must be mergeable. To ensure that this is
+ * the case, an existing {@code DyadicCountSketch} can be copied using
+ * {@code copy()} and reset using {@code reset()}.
+ *
+ * @author Martin de Spirlet
+ * @see #copy()
+ * @see #merge(DyadicCountSketch)
+ * @see #reset()
+ * @see FrequencyTable
+ * @see QuantileSummary
+ * @see RankSummary
+ * @see MultisetSummary
+ * @see Summary
+ * @see CountSketch
+ */
 public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketch>, RankSummary<DyadicCountSketch> {
 
     /**
@@ -156,6 +175,11 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
 
     private FrequencySummary[] summaries;
 
+    /**
+     * Constructs a copy of the given {@code DyadicCountSketch}.
+     *
+     * @param dyadicCountSketch the {@code DyadicCountSketch} to copy
+     */
     private DyadicCountSketch(DyadicCountSketch dyadicCountSketch) {
         COLUMNS = dyadicCountSketch.COLUMNS;
         ROWS = dyadicCountSketch.ROWS;
@@ -164,6 +188,17 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
         summaries = Arrays.stream(dyadicCountSketch.summaries).map(Summary::copy).toArray(FrequencySummary[]::new);
     }
 
+    /**
+     * Constructs a new {@code DyadicCountSketch} whose constituent
+     * {@code CountSketch} objects each have the given number of rows and number of
+     * columns.
+     *
+     * @param rows    the number of rows of each constituent {@code CountSketch} of
+     *                the new {@code DyadicCountSketch}
+     * @param columns the number of columns of each constituent {@code CountSketch}
+     *                of the new {@code DyadicCountSketch}
+     * @see CountSketch
+     */
     public DyadicCountSketch(int rows, int columns) {
         ROWS = rows;
         COLUMNS = columns;
@@ -173,6 +208,14 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
         reset();
     }
 
+    /**
+     * Returns an item that has approximately the given rank in the multiset from
+     * which this {@code DyadicCountSketch} is built.
+     *
+     * @param rank the rank of the item to get
+     * @return an item that has approximately the given rank in the multiset from
+     *         which this {@code DyadicCountSketch} is built.
+     */
     @Override
     public synchronized int getItem(int rank) {
         int item = -1;
@@ -197,6 +240,14 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
         return item;
     }
 
+    /**
+     * Returns the approximate rank of the given item in the multiset from which
+     * this {@code DyadicCountSketch} is built.
+     *
+     * @param item the item whose rank to get
+     * @return the approximate rank of the given item in the multiset from which
+     *         this {@code DyadicCountSketch} is built.
+     */
     @Override
     public synchronized int getRank(int item) {
         int rank = 0;
@@ -212,6 +263,13 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
         return rank;
     }
 
+    /**
+     * Updates the representation of the given item in this
+     * {@code DyadicCountSketch} by the corresponding weight.
+     *
+     * @param item   the item to update
+     * @param weight the weight by which to update the item
+     */
     @Override
     public synchronized void update(int item, int weight) {
         for (int i = 0; i < LEVELS; i++) {
@@ -221,11 +279,39 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
         }
     }
 
+    /**
+     * Returns a defensive copy of this {@code DyadicCountSketch}. This includes its
+     * constituent {@code CountSketch} and {@code FrequencyTable} objects.
+     *
+     * @return a defensive copy of this {@code CountSketch}
+     * @see FrequencyTable
+     * @see CountSketch
+     */
     @Override
     public synchronized DyadicCountSketch copy() {
         return new DyadicCountSketch(this);
     }
 
+    /**
+     * Merges the given {@code DyadicCountSketch} into this
+     * {@code DyadicCountSketch}. For two {@code DyadicCountSketch} objects to be
+     * merged, each corresponding pair of their constituent {@code CountSketch} and
+     * {@code FrequencyTable} objects must be mergeable. To ensure that this is the
+     * case, an existing {@code DyadicCountSketch} can be copied using
+     * {@code copy()} and reset using {@code reset()}. Note that if the merge fails,
+     * this {@code DyadicCountSketch} may not be in its original state.
+     *
+     * @param other the {@code DyadicCountSketch} to merge into this
+     *              {@code CountSketch}
+     * @throws IllegalArgumentException if the constituent {@code CountSketch} and
+     *                                  {@code FrequencyTable} objects of the other
+     *                                  {@code DyadicCountSketch} cannot be merged
+     *                                  with those of this {@code DyadicCountSketch}
+     * @see #copy()
+     * @see #reset()
+     * @see FrequencyTable
+     * @see CountSketch
+     */
     @Override
     public synchronized void merge(DyadicCountSketch other) {
         try {
@@ -240,6 +326,13 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
         }
     }
 
+    /**
+     * Resets this {@code DyadicCountSketch} to its initial state. This resets its
+     * constituent {@code CountSketch} and {@code FrequencyTable} objects.
+     *
+     * @see FrequencyTable
+     * @see CountSketch
+     */
     @Override
     public synchronized void reset() {
         summaries = new FrequencySummary[LEVELS];
@@ -253,6 +346,11 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
         }
     }
 
+    /**
+     * Returns a {@code String} that represents this {@code DyadicCountSketch}.
+     *
+     * @return a {@code String} that represents this {@code DyadicCountSketch}
+     */
     @Override
     public synchronized String toString() {
         return "DyadicCountSketch [ROWS=" + ROWS + ", COLUMNS=" + COLUMNS + ", THRESHOLD_LEVEL=" + THRESHOLD_LEVEL
