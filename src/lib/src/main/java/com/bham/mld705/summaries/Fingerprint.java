@@ -93,7 +93,8 @@ public final class Fingerprint implements IdentificationSummary<Fingerprint> {
     @Override
     public synchronized void update(int item, int weight) {
         try {
-            hashValue = (hashValue + weight * Math.raiseNonNegativeModulo(BASE, item, PRIME)) % PRIME;
+            hashValue = java.lang.Math.floorMod(hashValue + weight * Math.raiseNonNegativeModulo(BASE, item, PRIME),
+                    PRIME);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Cannot update Fingerprint with negative item: " + item, e);
         }

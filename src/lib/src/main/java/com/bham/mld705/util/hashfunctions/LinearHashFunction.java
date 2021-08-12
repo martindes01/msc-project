@@ -43,7 +43,7 @@ public final class LinearHashFunction implements HashFunction {
      */
     @Override
     public int apply(int key) {
-        return ((PARAMETER_A * key + PARAMETER_B) % PRIME) % MODULUS;
+        return Math.floorMod(PARAMETER_A * key + PARAMETER_B, PRIME) % MODULUS;
     }
 
     /**

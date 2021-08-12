@@ -75,7 +75,7 @@ public final class Math {
             base = squareModulo(base, modulus);
 
             if (isBitSet(exponent, i)) {
-                result = (result * base) % modulus;
+                result = java.lang.Math.floorMod(result * base, modulus);
             }
         }
 
