@@ -252,12 +252,16 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
     public synchronized int getRank(int item) {
         int rank = 0;
 
-        for (int i = 0; i < LEVELS; i++) {
+        for (int i = 0; i < LEVELS - 1; i++) {
             if ((item % 2) != 0) {
                 rank += summaries[i].getFrequency(item - 1);
             }
 
-            item >>>= 2;
+            item >>= 1;
+        }
+
+        if (item == 0) {
+            rank += summaries[LEVELS - 1].getFrequency(item - 1);
         }
 
         return rank;
@@ -275,7 +279,7 @@ public final class DyadicCountSketch implements QuantileSummary<DyadicCountSketc
         for (int i = 0; i < LEVELS; i++) {
             summaries[i].update(item, weight);
 
-            item >>>= 2;
+            item >>= 1;
         }
     }
 
