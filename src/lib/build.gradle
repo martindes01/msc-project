@@ -3,16 +3,126 @@ plugins {
     id 'scala'
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
-}
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
     implementation 'org.apache.spark:spark-core_2.12:3.1.2'
+
+    testImplementation gradleApi()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+tasks.withType(Javadoc).configureEach {
+    javadocTool = javaToolchains.javadocToolFor {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+if (project.hasProperty('options')) {
+    ext.options = project.getProperty('options').split('\s+')
+} else {
+    ext.options = ''
+}
+
+tasks.register('testFingerprint') {
+    group = 'Verification'
+    description = 'Runs all fingerprint tests.'
+}
+
+tasks.register('testFingerprintAccuracy', JavaExec) {
+    group = 'Verification'
+    description = 'Runs the fingerprint accuracy test.'
+
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.bham.mld705.tasks.FingerprintAccuracyTask'
+    args options
+}
+
+tasks.register('testFingerprintPerformance', JavaExec) {
+    group = 'Verification'
+    description = 'Runs the fingerprint performance test.'
+
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.bham.mld705.tasks.FingerprintPerformanceTask'
+    args options
+}
+
+tasks.named('testFingerprint').configure {
+    dependsOn tasks.named('testFingerprintAccuracy')
+    dependsOn tasks.named('testFingerprintPerformance')
+}
+
+tasks.register('testCountSketch') {
+    group = 'Verification'
+    description = 'Runs all count sketch tests.'
+}
+
+tasks.register('testCountSketchAccuracy', JavaExec) {
+    group = 'Verification'
+    description = 'Runs the count sketch accuracy test.'
+
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.bham.mld705.tasks.CountSketchAccuracyTask'
+    args options
+}
+
+tasks.register('testCountSketchPerformance', JavaExec) {
+    group = 'Verification'
+    description = 'Runs the count sketch performance test.'
+
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.bham.mld705.tasks.CountSketchPerformanceTask'
+    args options
+}
+
+tasks.named('testCountSketch').configure {
+    dependsOn tasks.named('testCountSketchAccuracy')
+    dependsOn tasks.named('testCountSketchPerformance')
+}
+
+tasks.register('testDyadicCountSketch') {
+    group = 'Verification'
+    description = 'Runs all dyadic count sketch tests.'
+}
+
+tasks.register('testDyadicCountSketchAccuracy', JavaExec) {
+    group = 'Verification'
+    description = 'Runs the dyadic count sketch accuracy test.'
+
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.bham.mld705.tasks.DyadicCountSketchAccuracyTask'
+    args options
+}
+
+tasks.register('testDyadicCountSketchPerformance', JavaExec) {
+    group = 'Verification'
+    description = 'Runs the dyadic count sketch performance test.'
+
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.bham.mld705.tasks.DyadicCountSketchPerformanceTask'
+    args options
+}
+
+tasks.named('testDyadicCountSketch').configure {
+    dependsOn tasks.named('testDyadicCountSketchAccuracy')
+    dependsOn tasks.named('testDyadicCountSketchPerformance')
+}
+
+tasks.named('test').configure {
+    dependsOn tasks.named('testFingerprint')
+    dependsOn tasks.named('testCountSketch')
+    dependsOn tasks.named('testDyadicCountSketch')
 }
