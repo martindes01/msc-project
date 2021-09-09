@@ -1,0 +1,11 @@
+\begin{algorithmic}[1]
+  \In the fingerprint \( f \in \dataintegerinterval{0, p - 1} \) to update; the item \( x \in U \) for which to update the fingerprint; the weight \( w \in \integers \) of the update to the item
+  \Out the updated fingerprint \( f' \in \dataintegerinterval{0, p - 1} \)
+  \Constant the prime number \( p \in \dataset{\phi \in \primes \suchthat \phi > u} \)
+  \Function{Update}{\relaxedmath{f}, \relaxedmath{x}, \relaxedmath{w}}
+    \State \( f' \gets \Copy f \)
+    \State \( \base (f') \gets \base (f) \)
+    \State \( f' \gets (f' + w \cdot \base (f')^{x}) \Mod p \)
+    \State \Return \( f' \)
+  \EndFunction
+\end{algorithmic}

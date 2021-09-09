@@ -1,0 +1,148 @@
+\part{The Fingerprint Summary}
+
+\section{The Fingerprint Summary}
+
+\subsection{Overview}
+
+\begin{frame}
+  \frametitle{Overview}
+
+  \begin{block}<1->{Identification Summary}
+    \begin{itemize}
+      \item Represents a stream of arbitrary length as a single compact hash value
+      \item Comparison for equality
+      \item Non-negative integer item from universe \( U = \dataintegerinterval{u} = \dataintegerinterval{0, u - 1} \)
+      \item Positive or negative integer weight
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Rolling Hash Function}
+    \begin{itemize}
+      \item Prime \( p > u - 1 \)
+      \item Random base \( \alpha \in \dataintegerinterval{1, p - 1} \)
+      \item Maintains hash value \( f \in \dataintegerinterval{0, p - 1} \)
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Applications}
+
+\begin{frame}
+  \frametitle{Applications}
+
+  \begin{block}<1->{Equality of Vectors}
+    \begin{itemize}
+      \item Database queries and joins
+      \item Checksums
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Similarity of Vectors}
+    \begin{itemize}
+      \item Search engines
+      \item Natural language processing
+      \item File diffs
+      \item Can be extended to other data types
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Theory}
+
+\begin{frame}
+  \frametitle{The Initialization Operation}
+
+  \input{algorithms/fingerprint/initialize.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Update Operation}
+
+  \input{algorithms/fingerprint/update.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Merge Operation}
+
+  \input{algorithms/fingerprint/merge.tex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Query and Equality Operations}
+
+  \begin{block}{Comparisons}
+    \begin{itemize}
+      \item Query returns hash value
+      \item Hash values compared for equality
+      \item Assuming two fingerprints have the same base
+      \begin{itemize}
+        \item multiset equality implies fingerprint equality
+        \item fingerprint inequality implies multiset inequality
+        \item fingerprint equality does not imply multiset equality
+      \end{itemize}
+      \item Probability of false positive can be bound
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Analysis}
+
+\begin{frame}
+  \frametitle{Accuracy}
+
+  \begin{block}<1->{Polynomial}
+    \begin{itemize}
+      \item Hash function is a polynomial \( \sum_{x \in U} w_{x} \cdot \alpha^{x} \pmod p \)
+      \item At most \( u - 1 \) integer roots \( \alpha \)
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Equivalent Tests}
+    \begin{itemize}
+      \item \( f = f' \iff f - f' = 0 \)
+      \item At most \( u - 1 \) integer roots \( \alpha \) where \( f - f' = 0 \)
+      \item At most \( u - 1 \) values of \( \alpha \) where \( f = f' \)
+      \item False positives or hash collisions
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Accuracy}
+
+  \begin{block}<1->{Choosing the Base \( \alpha \)}
+    \begin{itemize}
+      \item At most \( u - 1 \) roots \( \alpha \)
+      \item \( \alpha \) is drawn from \( \dataintegerinterval{1, p - 1} \)
+      \item Less chance of choosing root if \( p - 1 \gg u - 1 \)
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Choosing the Prime \( p \)}
+    \begin{itemize}
+      \item Choose \( p - 1 \geq (u - 1) / \delta \)
+      \item Probability of false positive is at most \( \delta \)
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Space and Time Complexities}
+
+  \begin{block}{A Traditional Hash Table}
+    \begin{itemize}
+      \item<alert@2> Space complexity \( \bigo{u} \)
+      \item<alert@3> Update time complexity (per datum) \( \bigo{1} \)
+      \item<alert@4> Equality time complexity \( \bigo{u} \)
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{The Fingerprint Summary}
+    \begin{itemize}
+      \item<alert@2> Space complexity \( \bigo{1} \)
+      \item<alert@3> Update time complexity (per datum) \( \bigo{1} \)
+      \item<alert@5> Equality time complexity \( \bigo{1} \)
+      \item<alert@5> Chance of false positive
+    \end{itemize}
+  \end{block}
+\end{frame}

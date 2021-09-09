@@ -1,0 +1,50 @@
+\part{The Dyadic Count Sketch}
+
+\section{The Dyadic Count Sketch}
+
+\subsection{Overview}
+
+\begin{frame}
+  \frametitle{Overview}
+
+  \begin{block}{Rank and Quantile Summary}
+    \begin{itemize}
+      \item Represents a stream of arbitrary length as a dyadic structure of frequency summaries
+      \item Query for approximate ranks or quantiles
+      \item Non-negative integer item from universe \( U = \dataintegerinterval{u} = \dataintegerinterval{0, u - 1} \)
+      \item Positive or negative integer weight
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Applications}
+
+\begin{frame}
+  \frametitle{Applications}
+
+  \begin{block}{Order Statistics and Quantile Values}
+    \begin{itemize}
+      \item Quartiles and percentiles
+      \item Median
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{Databases}
+    \begin{itemize}
+      \item Query optimization
+      \item Similarity of relations
+      \item Data cleansing
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Theory}
+
+\begin{frame}
+  \frametitle{Structure and Operations}
+
+  \begin{figure}
+    \centering
+    \input{figures/dyadic-count-sketch-binary-tree.tex}
+  \end{figure}
+\end{frame}

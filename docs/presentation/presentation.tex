@@ -1,0 +1,54 @@
+\documentclass{beamer}
+
+\useoutertheme{infolines}
+
+\setbeamersize{
+  text margin left = 1cm,
+  text margin right = 1cm,
+}
+
+\setbeamertemplate{frametitle}[default][right]
+\setbeamertemplate{navigation symbols}{}
+
+\AtBeginPart{\frame{\partpage}}
+
+\title[Streaming Algorithms]{Theory and Proof-of-Concept Implementations \\ of Streaming Algorithms for Multiset Data}
+\subtitle{MSc Computer Science Conversion Project}
+\author{Martin de Spirlet}
+\institute[]{University of Birmingham}
+\date{Project Presentation}
+
+\usepackage{adjustbox} % Graphics package-alike macros for “general” boxes
+\usepackage{algpseudocode} % Pseudocode environments for use with the `algorithmicx' style
+\usepackage{centernot} % Centred \not command
+\usepackage{forest} % Drawing (linguistic) trees
+\usepackage{mathtools} % Mathematical tools to use with amsmath
+\usepackage{stmaryrd} % St Mary Road symbols for theoretical computer science
+
+\input{definitions/algorithm.tex}
+\input{definitions/math.tex}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outline}
+
+  \uncover<1->{\tableofcontents[part=1]}
+  \uncover<2->{\tableofcontents[part=2]}
+  \uncover<3->{\tableofcontents[part=3,hideallsubsections]}
+  \uncover<4->{\tableofcontents[part=4,hideallsubsections]}
+\end{frame}
+
+\input{sections/introduction.tex}
+
+\input{sections/fingerprint.tex}
+
+\input{sections/count-sketch.tex}
+
+\input{sections/dyadic-count-sketch.tex}
+
+\end{document}
