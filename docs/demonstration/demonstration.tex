@@ -1,0 +1,201 @@
+\documentclass{beamer}
+
+\useoutertheme{infolines}
+
+\setbeamertemplate{headline}[default]
+\setbeamertemplate{footline}[infolines]
+\setbeamertemplate{navigation symbols}{}
+
+\title[Streaming Algorithms]{Theory and Proof-of-Concept Implementations \\ of Streaming Algorithms for Multiset Data}
+\subtitle{MSc Computer Science Conversion Project}
+\author{Martin de Spirlet}
+\institute[]{University of Birmingham}
+\date{Project Demonstration}
+
+\usepackage{booktabs} % Publication quality tables in LaTeX
+\usepackage{listings} % Typeset source code listings using LaTeX
+\usepackage{siunitx} % A comprehensive (SI) units package
+
+\lstset{
+  basicstyle = \ttfamily,
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Types of Test}
+
+  \begin{block}<1->{Accuracy Test}
+    \begin{itemize}
+      \item Generate an artificial random dataset
+      \item Construct a summary of the dataset
+      \item Query the summary for approximations
+      \item Determine the experimental accuracy of the approximations
+      \item Compare the experimental accuracy to the theoretical accuracy
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Performance Test}
+    \begin{itemize}
+      \item Generate artificial random datasets of a range of sizes
+      \item Time the construction of their summaries
+      \item Determine the experimental time complexity
+      \item Compare the experimental time complexity to the theoretical time complexity
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Running the Tests}
+
+  \begin{block}{Custom Gradle Task}
+    \begin{center}
+      \lstinline{./gradlew <test-name> [--project-prop options="<options>"]}
+    \end{center}
+
+    \begin{table}
+      \centering
+      \begin{tabular}{
+        l
+        S[
+          table-alignment = right,
+          table-format = 5,
+        ]
+      }
+        \toprule
+        Option name & {Default value} \\
+        \midrule
+        \lstinline{--size} & 65536 \\
+        \lstinline{--item-lower-bound} & \\
+        \lstinline{--item-upper-bound} & \\
+        \lstinline{--weight-lower-bound} & \\
+        \lstinline{--weight-upper-bound} & \\
+        \lstinline{--rows} & \\
+        \lstinline{--columns} & \\
+        \lstinline{--queries} & 65536 \\
+        \lstinline{--runs} & 1 \\
+        \bottomrule
+      \end{tabular}
+    \end{table}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Fingerprint Accuracy Tests}
+
+  \begin{block}{Parameters}
+    \begin{itemize}
+      \item Set item lower bound to zero
+      \item Vary item upper bound
+      \item Set dataset size to \num[parse-numbers=false]{2^{16}}
+      \item Run each test \num{25}~times
+    \end{itemize}
+
+    \begin{table}
+      \centering
+      \begin{tabular}{
+        S[
+          table-alignment = right,
+          table-format = 8,
+        ]
+        S[
+          round-mode = figures,
+          round-precision = 3,
+          table-alignment = right,
+          table-format = 1.2e-1,
+        ]
+      }
+        \toprule
+        {Item upper bound} & {Failure bound} \\
+        \midrule
+        255 & 8.363515273e-8 \\
+        4095 & 1.348040611e-6 \\
+        65535 & 2.157852795e-5 \\
+        1048575 & 3.452663254e-4 \\
+        16777215 & 5.524271084e-3 \\
+        \bottomrule
+      \end{tabular}
+    \end{table}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Count Sketch Accuracy Tests}
+
+  \begin{block}{Parameters}
+    \begin{itemize}
+      \item Set number of columns to \num{10}
+      \item Vary number of rows
+      \item Set dataset size to \num[parse-numbers=false]{2^{16}}
+      \item Set number of queries to \num[parse-numbers=false]{2^{16}}
+      \item Run each test \num{25}~times
+    \end{itemize}
+
+    \begin{table}
+      \centering
+      \begin{tabular}{
+        S[
+          table-alignment = right,
+          table-format = 2,
+        ]
+        S[
+          round-mode = figures,
+          round-precision = 3,
+          table-alignment = right,
+          table-format = 1.2e-1,
+        ]
+      }
+        \toprule
+        {Rows} & {Failure bound} \\
+        \midrule
+        3 & 0.04978706837 \\
+        5 & 6.737946999e-3 \\
+        7 & 9.118819656e-4 \\
+        9 & 1.234098041e-4 \\
+        11 & 1.670170079e-5 \\
+        \bottomrule
+      \end{tabular}
+    \end{table}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Dyadic Count Sketch Accuracy Tests}
+
+  \begin{block}{Parameters}
+    \begin{itemize}
+      \item Set count sketch size to \( 7 \times 60 \)
+      \item Vary weight upper bound
+      \item Error should be at most \SI{25}{\percent} of cardinality
+      \item Set dataset size to \num[parse-numbers=false]{2^{16}}
+      \item Set number of queries to \num[parse-numbers=false]{2^{16}}
+      \item Run each test \num{25}~times
+    \end{itemize}
+
+    \begin{table}
+      \centering
+      \begin{tabular}{
+        S[
+          table-alignment = right,
+          table-format = 4,
+        ]
+      }
+        \toprule
+        {Weight upper bound} \\
+        \midrule
+        16 \\
+        64 \\
+        256 \\
+        1024 \\
+        4096 \\
+        \bottomrule
+      \end{tabular}
+    \end{table}
+  \end{block}
+\end{frame}
+
+\end{document}
