@@ -1,0 +1,165 @@
+\part{Introduction}
+
+\section{Introduction}
+
+\subsection{Background}
+
+\begin{frame}
+  \frametitle{Motivation}
+
+  \begin{block}<1->{The Rise of Big Data}
+    \begin{itemize}
+      \item Modern applications generate vast quantities of data
+      \item Exponential growth of data
+      \item Difficult to store and process
+      \item Data generation is increasing at a greater rate than data storage
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Example}
+    \begin{itemize}
+      \item Very Large Array collects hundreds of terabytes annually
+      \item Square Kilometre Array will store two petabytes daily
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Solution}
+
+  \begin{block}<1->{Streaming Algorithms}
+    \begin{itemize}
+      \item Streams of arbitrary length and order
+      \item One item at a time
+      \item Compact summaries of data
+      \begin{itemize}
+        \item A handful of values
+        \item A reduced array or `sketch'
+      \end{itemize}
+      \item Approximations of properties of data
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Advantages}
+    \begin{itemize}
+      \item Reduced size
+      \item Efficient queries
+      \item Ease of update
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Applications}
+
+  \begin{block}<1->{Characteristics}
+    \begin{itemize}
+      \item Large and constantly changing data
+      \item Data locality
+      \item Approximate results
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Examples}
+    \begin{itemize}
+      \item Medicine
+      \item Science
+      \item Business
+      \item Social media
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Aims and Objectives}
+
+\begin{frame}
+  \frametitle{Overview}
+
+  \begin{block}<1->{Aims}
+    \begin{itemize}
+      \item Investigate streaming algorithms and their applications
+      \item Implement the fingerprint summary, count sketch and dyadic count sketch from scratch to create a small library in Java
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Objectives}
+    \begin{itemize}
+      \item Understand theoretically
+      \item Express formally in pseudocode
+      \item Analyse correctness, complexity and advantages
+      \item Implemented in Java
+      \item Evaluated on datasets
+    \end{itemize}
+  \end{block}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summaries}
+
+  \begin{block}<1->{Multiset Data}
+    \begin{itemize}
+      \item Pairs of items and weights
+      \item Useful for mapped data
+      \item Streaming model allows insertion and deletion
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Multiset Summaries}
+    \begin{itemize}
+      \item<2-> Fingerprint summary---identification
+      \item<3-> Count sketch---frequencies
+      \item<4-> Dyadic count sketch---ranks and quantiles
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Structure and Contributions}
+
+\begin{frame}
+  \frametitle{The Implementation Library}
+
+  \begin{adjustbox}{
+    max height = \textheight,
+    max width = \textwidth,
+  }
+    \input{figures/summaries.tex}
+  \end{adjustbox}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Written Work}
+
+  \begin{block}<1->{Understanding of streaming algorithms}
+    \begin{itemize}
+      \item Applications
+      \item Theory
+      \item Analysis of correctness
+      \item Empirical verification of analyses
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Further Contributions}
+    \begin{itemize}
+      \item More digestible as introductory material
+      \item Original analyses
+      \begin{itemize}
+        \item Comparison to traditional methods
+        \item Extending the universe of permissible values
+      \end{itemize}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{This Presentation}
+
+  \begin{block}{Summaries}
+    \begin{itemize}
+      \item Overview
+      \item Applications
+      \item Algorithms
+      \item Analysis of correctness
+    \end{itemize}
+  \end{block}
+\end{frame}

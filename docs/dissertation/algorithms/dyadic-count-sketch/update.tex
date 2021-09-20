@@ -1,0 +1,26 @@
+\begin{algorithmic}[1]
+  \In the ordered pair \( \cramped{T \in \integers^{\lambda \times m \times n} \times \integers^{(L - \lambda) \times u / 2^{\lambda}}} \) of arrays of counters and tuples of frequency tables to update; the item \( x \in U \) for which to update the pair; the weight \( w \in \integers \) of the update to the item
+  \Out the updated pair \( \cramped{T' \in \integers^{\lambda \times m \times n} \times \integers^{(L - \lambda) \times u / 2^{\lambda}}} \)
+  \Constant the number \( L = \ceiling{\lg u} \) of levels in the dyadic structure; the number \( \lambda = \floor{\lg (u / (m \cdot n))} + 1 \) of lower levels in the dyadic structure; the number \( m \in \positiveintegers \) of rows in each array
+  \Function{Update}{\relaxedmath{T}, \relaxedmath{x}, \relaxedmath{w}}
+    \State \( \datasequence{C, D} \gets T \)
+    \State \( \datasequence{C', D'} \gets \Copy \datasequence{C, D} \)
+    \For{\( l \gets 0 \To (L - 1) \)}
+      \If{\( l < \lambda \)}
+        \State \( \hashFunctions (C'_{l}) \gets \hashFunctions (C_{l}) \)
+        \State \( \discriminatorFunctions (C'_{l}) \gets \discriminatorFunctions (C_{l}) \)
+        \ForAll{\( i \in \dataintegerinterval{m} \)}
+          \State \( j \gets (\hashFunction (C'_{l}, i))(x) \)
+          \State \( k \gets (\discriminatorFunction (C'_{l}, i))(x) \)
+          \State \( (C'_{l})_{i, j} \gets (C'_{l})_{i, j} + k \cdot w \)
+        \EndFor
+      \Else
+        \State \( l' \gets l - \lambda \)
+        \State \( (D'_{l'})_{x} \gets (D'_{l'})_{x} + w \)
+      \EndIf
+      \State \( x \gets x \Div 2 \)
+    \EndFor
+    \State \( T' \gets \datasequence{C', D'} \)
+    \State \Return \( T' \)
+  \EndFunction
+\end{algorithmic}

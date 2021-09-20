@@ -1,0 +1,54 @@
+\section{Overview}
+\label{sec:count-sketch-overview}
+
+A count sketch is a type of frequency summary; it summarizes the underlying multiset of a stream \( \mathcal{S} \) in such a way that it can be queried for an approximation of the multiplicity (frequency or count) of a given item in the multiset~\citep{charikar02}.
+The benefit of a count sketch over a more accurate structure, such as a  frequency table, is that the former can be made significantly more compact.
+In this context, each datum in the stream is an ordered pair of a (positive or negative) integer item \( x \), and a (positive or negative) real-valued weight \( w \).
+The underlying multiset \( S \) comprises all items \( x \) that appear in the stream, and each weight \( w \) is a summand of the multiplicity of its corresponding item in the multiset.
+Note that by this definition, the underlying `multiset' is not strictly a multiset, since an item is allowed to have a fractional multiplicity!
+This distinction has little effect on the analysis of the count sketch presented here, however.
+The universe \( U \) from which items are drawn can be any subset of the set of integers \( \integers \)~\citep{cormode20}.
+This is formalized in \cref{eq:count-sketch-overview-multiset,eq:count-sketch-overview-multiplicity}.
+
+\begin{gather}
+  \label{eq:count-sketch-overview-multiset}
+  S = \datamultiset[\big]{x \in \integers \suchthat x \in \datasequence{x, w}} \quad \forall\ \datasequence{x, w} \in \mathcal{S}. \\
+  \label{eq:count-sketch-overview-multiplicity}
+  \cardinality[\big]{\datamultiset{s \in S \suchthat s = x}} = \smashoperator{\sum_{\datasequence{s, w} \in \mathcal{S}}} \indicator_{\dataset{x}} (s) \cdot w \quad \forall\ x \in S.
+\end{gather}
+
+The count sketch has proven to be a versatile summary that has found use in a number of applications that do not seem immediately apparent.
+For example, the count sketch can be used to detect distributed denial-of-service attacks in large and high-speed networks, and track victims with a high level of accuracy without the need to record every IP~address encountered in the traffic~\citep{liu11}.
+This works by counting new flows in the traffic and utilizing the characteristic that the number of requests received by a server under attack is much greater than the number of responses it sends.
+Another application is \emph{differential privacy}---a method of publicly releasing information while maintaining privacy by sharing descriptions of the composition of the data rather than publishing it directly~\citep{cormode12}.
+This use case exploits the compact size and loss of accuracy associated with the sketch to reduce the size of the data and to add noise deliberately, all in significantly less time than traditional methods.
+It has also been shown that the count sketch of the product of two matrices can be computed efficiently without actually performing matrix multiplication.
+This method is known as `compressed' matrix multiplication~\citep{pagh13}.
+
+A count sketch \( C \) summarizes a multiset as an \( m \times n \) array of counters.
+Hash functions are used to map items to positions in the array.
+Since the goal of the count sketch is to summarize the multiset in a small amount of space, the number of rows \( m \) and the number of columns \( n \) are typically chosen such that the total number of positions \( m \cdot n \) in the array is significantly less than the size \( \cardinality{U} \) of the universe.
+Thus, it is highly likely that a hash collision will occur, causing multiple items to be mapped to a single position.
+Counter-intuitively, the solution presented by the count sketch is to use a sequence of \( m \) hash functions \( h \colon \integers \to \dataintegerinterval{n} \) to map each item to \( m \) positions in the array---one position in each row.
+Although this increases the likelihood of a hash collision by the factor \( m^{2} \), it also means that any collisions would occur between different items in each row.
+Therefore, a collision with an item of great weight in one row would not affect the corresponding counters in the other rows~\citep{charikar02,cormode20}.
+Additionally, another sequence of \( m \) hash functions \( g \colon \integers \to \dataset{-1, +1} \) is used to determine whether for each row, the update weights of an item should be subtracted from or added to the corresponding counter.
+Such a function could be called a `discriminating' hash function.
+As a result of applying these functions, the collisions roughly cancel each other out.
+Finally, the approximate frequency of an item \( x \) in the underlying multiset is computed as the median of the counters to which \( x \) is mapped, over all rows of the array.
+
+Each of these hash functions must be based on one drawn from a family of pairwise independent hash functions.
+A hash function is considered pairwise independent if the hash values it produces for any pair of keys are independent random variables.
+A simple family of pairwise independent hash functions is the family of linear functions modulo a large prime \( p \)~\citep{thorup00,thorup04}.
+Each function \( h \) is such a function computed modulo \( n \), as defined in \cref{eq:count-sketch-overview-hash-function}, whereas each function \( g \) is such a function computed modulo two and adjusted from the range \( \dataset{0, 1} \) to the range \( \dataset{-1, +1} \), as defined in \cref{eq:count-sketch-overview-discriminator-function}.
+The two sequences of hash functions can be interpreted as properties of the count sketch.
+Thus, in the following algorithms, the hash functions that map items to positions in a count sketch \( C \) are represented by the primitive routine \( \hashFunctions (C) \), and of these, the hash function corresponding to row~\( i \) is represented by \( \hashFunction (C, i) \).
+Similarly, the discriminating hash functions that determine whether weights should be subtracted from or added to counters in \( C \) are represented by \( \discriminatorFunctions (C) \), and of these, the discriminating hash function corresponding to row~\( i \) is represented by \( \discriminatorFunction (C, i) \).
+Each of the following algorithms is either adapted from, or designed according to the description of, the corresponding operation in the definitive literature~\citep{charikar02,cormode20}.
+
+\begin{alignat}{2}
+  \label{eq:count-sketch-overview-hash-function}
+  h &\colon \integers \to \dataintegerinterval{n}; & \enspace x &\mapsto \bigl( (\alpha \cdot x + \beta) \bmod p \bigr) \bmod n. \\
+  \label{eq:count-sketch-overview-discriminator-function}
+  g &\colon \integers \to \dataset{-1, +1}; & \enspace x &\mapsto 2 \cdot \Bigl( \bigl( (\gamma \cdot x + \theta) \bmod p \bigr) \bmod 2 \Bigr) - 1.
+\end{alignat}

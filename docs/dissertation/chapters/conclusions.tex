@@ -1,0 +1,14 @@
+\chapter{Conclusions}
+\label{ch:conclusions}
+
+Streaming algorithms construct compact summaries of big data in such a way that they can be queried for accurate approximations of properties of the data.
+The streaming paradigm is applicable to any problem that deals with large and constantly changing data, particularly if that problem permits data locality and approximation.
+Three summaries and the streaming algorithms that produce them have been studied.
+These are the fingerprint summary, the count sketch and the dyadic count sketch, of which the fingerprint summary and dyadic count sketch appear to have attracted very few implementations conveniently available online.
+All three sets of streaming algorithms summarize multiset data, which is a common representation in which each datum maps an item to a corresponding quality, which could be interpreted as its multiplicity.
+The three summaries can be used, among other things, in the computation of database joins, the detection of distributed denial of service attacks, and the implementation of differential privacy.
+
+For each summary, background information, applications, theory and analyses have been provided, including discussions of the accuracy, complexity and utility of the summary.
+The three summaries have been implemented successfully in Java to create a small library.
+The tests performed on these implementations provide empirical verification of their correctness and the time complexities of their update operations.
+Overall, the project shows how streaming algorithms can be implemented, and provides evidence of their accuracy and performance.

@@ -1,0 +1,27 @@
+\begin{tabular}{
+  S[
+    table-alignment = right,
+    table-format = 8,
+  ]
+  S[
+    table-alignment = right,
+    table-format = 11,
+  ]
+  S[
+    table-alignment = right,
+    table-format = 11,
+  ]
+}
+  \toprule
+  {Dataset size} & \multicolumn{2}{c}{Execution time / \si{\nano\second}} \\
+  \cmidrule{2-3}
+  & {Median} & {Normalized} \\
+  \midrule
+  1 & 23927624 & 0 \\
+  256 & 23971901 & 44277 \\
+  4096 & 24566401 & 638777 \\
+  65536 & 72955400 & 49027776 \\
+  1048576 & 767910300 & 743982676 \\
+  16777216 & 13115900199 & 13091972575 \\
+  \bottomrule
+\end{tabular}

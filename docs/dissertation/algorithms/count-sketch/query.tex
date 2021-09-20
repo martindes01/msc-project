@@ -1,0 +1,16 @@
+\begin{algorithmic}[1]
+  \In the array \( C \in \realnumbers^{m \times n} \) to query; the item \( x \in U \) whose approximate frequency in the multiset \( S \) to return
+  \Out the approximate frequency \( f \in \realnumbers \) of the item in the multiset (\( f \simeq \cardinality{\datamultiset{s \in S \suchthat s = x}} \))
+  \Constant the number \( m \in \positiveintegers \) of rows in the array
+  \Local the multiset \( F \in \realnumbers^{m} \) of approximate frequencies of the item
+  \Function{Query}{\relaxedmath{C}, \relaxedmath{x}}
+    \State \( F \gets \varnothing \)
+    \ForAll{\( i \in \dataintegerinterval{m} \)}
+      \State \( j \gets (\hashFunction (C, i))(x) \)
+      \State \( k \gets (\discriminatorFunction (C, i))(x) \)
+      \State \( F \gets F \cup \dataset{k \cdot C_{i, j}} \)
+    \EndFor
+    \State \( f \gets \median F \)
+    \State \Return \( f \)
+  \EndFunction
+\end{algorithmic}

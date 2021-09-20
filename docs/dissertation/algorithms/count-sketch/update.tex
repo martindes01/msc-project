@@ -1,0 +1,16 @@
+\begin{algorithmic}[1]
+  \In the array \( C \in \realnumbers^{m \times n} \) of counters to update; the item \( x \in U \) for which to update the array; the weight \( w \in \realnumbers \) of the update to the item
+  \Out the updated array \( C' \in \realnumbers^{m \times n} \)
+  \Constant the number \( m \in \positiveintegers \) of rows in the array
+  \Function{Update}{\relaxedmath{C}, \relaxedmath{x}, \relaxedmath{w}}
+    \State \( C' \gets \Copy C \)
+    \State \( \hashFunctions (C') \gets \hashFunctions (C) \)
+    \State \( \discriminatorFunctions (C') \gets \discriminatorFunctions (C) \)
+    \ForAll{\( i \in \dataintegerinterval{m} \)}
+      \State \( j \gets (\hashFunction (C', i))(x) \)
+      \State \( k \gets (\discriminatorFunction (C', i))(x) \)
+      \State \( C'_{i, j} \gets C'_{i, j} + k \cdot w \)
+    \EndFor
+    \State \Return \( C' \)
+  \EndFunction
+\end{algorithmic}

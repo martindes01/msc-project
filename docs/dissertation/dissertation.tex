@@ -1,0 +1,155 @@
+\documentclass[
+  10pt,
+  a4paper,
+  twoside,
+  openright,
+]{book}
+
+\title{Theory and Proof-of-Concept Implementations \\ of Streaming Algorithms for Multiset Data}
+\author{Martin de Spirlet \\ 1785605}
+\date{September 2021}
+
+\newcommand*{\degree}{MSc Computer Science}
+\newcommand*{\supervisor}{Dr.\@ Rajesh Chitnis}
+\newcommand*{\school}{School of Computer Science \\ University of Birmingham}
+
+% Set document geometry
+\usepackage[a4paper]{geometry} % Flexible and complete interface to document dimensions
+
+\usepackage[chapter]{algorithm} % Floating `algorithm' environment
+\usepackage{algpseudocode} % Pseudocode environments for use with the `algorithmicx' style
+\usepackage{amsfonts} % TeX fonts from the American Mathematical Society
+% \usepackage{amsmath} % AMS mathematical facilities for LaTeX
+\usepackage{amssymb} % TeX fonts from the American Mathematical Society
+\usepackage{booktabs} % Publication quality tables in LaTeX
+\usepackage{calc} % Simple arithmetic in LaTeX commands
+\usepackage{centernot} % Centred \not command
+\usepackage[inline]{enumitem} % Control layout of itemize, enumerate, description
+\usepackage{fancyhdr} % Extensive control of page headers and footers in LaTeX2e
+\usepackage{float} % Improved interface for floating objects
+\usepackage[edges]{forest} % Drawing (linguistic) trees
+\usepackage[htt]{hyphenat} % Disable/enable hypenation
+\usepackage{listings} % Typeset source code listings using LaTeX
+\usepackage[tbtags]{mathtools} % Mathematical tools to use with amsmath
+\usepackage[numbers]{natbib} % Flexible bibliography support
+\usepackage[
+  % skip = 1\baselineskip plus 2pt,
+  skip = 1\baselineskip minus 2pt,
+  indent,
+]{parskip} % Layout with zero \parindent, non-zero \parskip
+\usepackage[simplified]{pgf-umlcd} % Some LaTeX macros for UML Class Diagrams
+\usepackage{pgfplots} % Create normal/logarithmic plots in two and three dimensions
+\usepackage[onehalfspacing]{setspace} % Set space between lines % setspace must be loaded before hyperref
+\usepackage{siunitx} % A comprehensive (SI) units package
+\usepackage{stmaryrd} % St Mary Road symbols for theoretical computer science
+
+\PassOptionsToPackage{hyphens}{url}\usepackage{hyperref} % Extensive support for hypertext in LaTeX
+
+\usepackage[
+  capitalise,
+  nameinlink,
+]{cleveref} % Intelligent cross-referencing % cleveref must be loaded after hyperref
+\usepackage{usebib} % A simple bibliography processor % usebib must be loaded after hyperref
+
+% Set the reference names for equations (using cleveref)
+\Crefname{equation}{Equation}{Equations}
+\crefname{equation}{eq.}{eqs.}
+
+% Set the list style (using enumitem)
+\setlist[enumerate]{
+  label = {\arabic*)},
+}
+
+% Set the fancy page style (using fancyhdr)
+\fancyhf{}
+\fancyhead[LE]{\leftmark}
+\fancyhead[RO]{\rightmark}
+\fancyfoot[C]{\thepage}
+\renewcommand*{\headrulewidth}{0pt}
+
+% Set the default placement specifier for algorithms (using float)
+\floatplacement{algorithm}{tbp}
+
+% Set the listing style (using listings)
+\lstset{
+  basicstyle = \ttfamily,
+}
+\renewcommand*{\lstinline}[1]{\texttt{#1}}
+
+% Set the bibliography style (using natbib)
+\bibliographystyle{IEEEtranN}
+
+% Set the UML diagram colours (using pgf-umlcd)
+\renewcommand*{\umldrawcolor}{black}
+\renewcommand*{\umlfillcolor}{none}
+\renewcommand*{\umltextcolor}{black}
+
+% Use bibliography fields in the document (using usebib)
+\bibinput{bibliography}
+
+% Increase penalty for widows and orphans (maximum 10000)
+\widowpenalty = 10000
+\clubpenalty = 10000
+
+% Include command and environment definitions
+\input{definitions/algorithm.tex}
+\input{definitions/math.tex}
+\input{definitions/structure.tex}
+
+\begin{document}
+
+\maketitle
+
+\pagestyle{fancy}
+
+\frontmatter
+
+\begin{frontsection}{Abstract}
+  The number of global sources of data and the volume of information they produce are growing at an exponential rate.
+  In fact, the global capacity for the generation of data is increasing at a far greater rate than the global capacity for its storage.
+  The storage and processing of such increasingly vast volumes of `big data' presents obvious problems, due to limits on what is economically feasible to store for any extended period of time.
+  One solution to the problem of processing big data is the paradigm of \emph{streaming algorithms}.
+  A streaming algorithm accepts data one datum at a time from a stream of arbitrary length and arbitrary order, and constructs a compact summary of that data.
+  By considering only the current state of the summary and the next datum from the stream during an update, a summary of constantly changing data can be maintained in real time.
+  In general, streaming algorithms offer a large saving of space in exchange for a small loss of accuracy.
+  In this project, three summaries of multiset data are investigated.
+  These are the fingerprint summary, the count sketch and the dyadic count sketch.
+  Of these, the fingerprint summary and dyadic count sketch have not attracted many implementations conveniently available online.
+  Each corresponding set of algorithms is understood theoretically, expressed formally in pseudocode, and analysed in order to reason about its correctness.
+  The algorithms are also implemented in Java to create an extensible library as proof of concept.
+  The implementations are then evaluated on artificial datasets carefully designed to test the accuracy and performance of the summaries.
+  The results provide empirical verification of the correctness of the summaries and the streaming algorithms that produce them.
+  Overall, the project shows how streaming algorithms can be implemented, and provides evidence of their accuracy and performance.
+\end{frontsection}
+
+\tableofcontents
+
+\mainmatter
+
+\input{chapters/introduction.tex}
+
+\input{chapters/fingerprint.tex}
+
+\input{chapters/count-sketch.tex}
+
+\addtocontents{toc}{\protect\newpage}
+
+\input{chapters/dyadic-count-sketch.tex}
+
+\input{chapters/discussion.tex}
+
+\input{chapters/conclusions.tex}
+
+\appendix
+
+\input{appendices/repository.tex}
+
+\input{appendices/notation.tex}
+
+\backmatter
+
+\refstepcounter{chapter}
+\addcontentsline{toc}{chapter}{\bibname}
+\bibliography{bibliography}
+
+\end{document}

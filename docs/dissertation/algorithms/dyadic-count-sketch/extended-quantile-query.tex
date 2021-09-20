@@ -1,0 +1,33 @@
+\begin{algorithmic}[1]
+  \In the ordered pair \( \cramped{T \in \integers^{\lambda \times m \times n} \times \integers^{(L - \lambda) \times u / 2^{\lambda - 1}}} \) to query; the target rank \( t \in \nonnegativeintegers \) in the multiset \( S \) of the item to return
+  \Out the item \( x \in V \) whose approximate rank in the multiset is the target rank (\( t \simeq \cardinality{\datamultiset{s \in S \suchthat s < x}} \))
+  \Constant the number \( L = \ceiling{\lg u} + 1 \) of levels in the dyadic structure; the number \( \lambda = \floor{\lg (u / (m \cdot n))} + 2 \) of lower levels in the dyadic structure; the number \( m \in \positiveintegers \) of rows in the array
+  \Local the cumulative rank \( r \in \nonnegativeintegers \) of the item in the multiset; the approximate frequency \( f_{l} \in \integers \) of the item in each level~\( l \); the multiset \( F_{l} \in \integers^{m} \) of approximate frequencies of the item in each level~\( l \)
+  \Function{Extended-Quantile-Query}{\relaxedmath{T}, \relaxedmath{t}}
+    \State \( \datasequence{C, D} \gets T \)
+    \State \( x \gets -1 \)
+    \State \( r \gets 0 \)
+    \For{\( l \gets (L - 1) \DownTo 0 \)}
+      \If{\( l \geq \lambda \)}
+        \State \( l' \gets l - \lambda \)
+        \State \( f_{l} \gets (D_{l'})_{x} \)
+      \Else
+        \State \( F_{l} \gets \varnothing \)
+        \ForAll{\( i \in \dataintegerinterval{m} \)}
+          \State \( j \gets (\hashFunction (C_{l}, i))(x) \)
+          \State \( k \gets (\discriminatorFunction (C_{l}, i))(x) \)
+          \State \( F_{l} \gets F_{l} \cup \dataset{k \cdot (C_{l})_{i, j}} \)
+        \EndFor
+        \State \( f_{l} \gets \median F_{l} \)
+      \EndIf
+      \If{\( r + f_{l} < t \)}
+        \State \( x \gets x + 1 \)
+        \State \( r \gets r + f_{l} \)
+      \EndIf
+      \If{\( l > 0 \)}
+        \State \( x \gets 2 \cdot x \) \label{line:dyadic-count-sketch-extended-quantile-query-multiplication}
+      \EndIf
+    \EndFor
+    \State \Return \( x \)
+  \EndFunction
+\end{algorithmic}

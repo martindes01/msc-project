@@ -1,0 +1,50 @@
+\begin{tikzpicture}
+  \begin{interface}[text width=4cm]{Summary}{0,0}
+    \operation[0]{copy() : Summary}
+    \operation[0]{merge(Summary) : void}
+    \operation[0]{reset() : void}
+  \end{interface}
+
+  \begin{interface}[text width=4cm]{MultisetSummary}{0,-3.2}
+    \inherit{Summary}
+    \operation[0]{update(int, int) : void}
+  \end{interface}
+
+  \begin{interface}[text width=4cm]{IdentificationSummary}{-5,-3.2}
+    \inherit{MultisetSummary}
+    \operation[0]{getHashValue() : long}
+  \end{interface}
+
+  \begin{interface}[text width=4cm]{FrequencySummary}{-2.5,-5.6}
+    \inherit{MultisetSummary}
+    \operation[0]{getFrequency(int) : int}
+  \end{interface}
+
+  \begin{interface}[text width=4cm]{RankSummary}{2.5,-5.6}
+    \inherit{MultisetSummary}
+    \operation[0]{getRank(int) : int}
+  \end{interface}
+
+  \begin{interface}[text width=4cm]{QuantileSummary}{5,-3.2}
+    \inherit{MultisetSummary}
+    \operation[0]{getItem(int) : int}
+  \end{interface}
+
+  \begin{class}[text width=3cm]{Fingerprint}{-5,-8}
+    \implement{IdentificationSummary}
+  \end{class}
+
+  \begin{class}[text width=3cm]{CountSketch}{0,-8}
+    \implement{FrequencySummary}
+  \end{class}
+
+  \begin{class}[draw=none,text opacity=0]{DyadicCountSketch}{5,-8}
+    \implement{RankSummary}
+  \end{class}
+
+  \begin{class}[text width=4cm]{DyadicCountSketch}{5,-8}
+    \implement{QuantileSummary}
+  \end{class}
+
+  \composition{DyadicCountSketch}{}{*}{CountSketch}
+\end{tikzpicture}

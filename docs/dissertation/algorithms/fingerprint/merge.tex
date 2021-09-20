@@ -1,0 +1,10 @@
+\begin{algorithmic}[1]
+  \In the two fingerprints \( a, b \in \dataintegerinterval{0, p - 1} \) to merge (\( \base (a) = \base (b) \))
+  \Out the merged fingerprint \( f \equiv a + b \pmod{p} \in \dataintegerinterval{0, p - 1} \)
+  \Constant the prime number \( p \in \dataset{\phi \in \primes \suchthat \phi > u} \)
+  \Function{Merge}{\relaxedmath{a}, \relaxedmath{b}}
+    \State \( f \gets (a + b) \Mod p \)
+    \State \( \base (f) \gets \base (a) \)
+    \State \Return \( f \)
+  \EndFunction
+\end{algorithmic}

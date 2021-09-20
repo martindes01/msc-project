@@ -1,0 +1,48 @@
+% Define algorithmic condition text
+\algnewcommand{\algorithmicconstant}{\textbf{constant:}}
+\algnewcommand{\algorithmicin}{\textbf{in:}}
+\algnewcommand{\algorithmiclocal}{\textbf{local:}}
+\algnewcommand{\algorithmicout}{\textbf{out:}}
+
+% Define algorithmic conditions
+\algnewcommand{\Constant}{\item[\algorithmicconstant]}
+\algnewcommand{\In}{\item[\algorithmicin]}
+\algnewcommand{\Local}{\item[\algorithmiclocal]}
+\algnewcommand{\Out}{\item[\algorithmicout]}
+
+% Define algorithmic keyword text
+\algnewcommand{\algorithmiccopy}{\textbf{copy}}
+\algnewcommand{\algorithmicdiv}{\textbf{div}}
+\algnewcommand{\algorithmicdownto}{\textbf{down to}}
+\algnewcommand{\algorithmicland}{\textbf{and}}
+\algnewcommand{\algorithmiclforall}{\textbf{for all}}
+\algnewcommand{\algorithmicmod}{\textbf{mod}}
+\algnewcommand{\algorithmicto}{\textbf{to}}
+
+% Define algorithmic keywords
+\newcommand*{\binarykeyword}[1]{\ifmmode\thickspace#1\thickspace\else#1 \fi}
+\newcommand*{\unarykeyword}[1]{#1 \ifmmode\medspace\fi}
+\algnewcommand{\Copy}{\unarykeyword{\algorithmiccopy}}
+\algnewcommand{\Div}{\binarykeyword{\algorithmicdiv}}
+\algnewcommand{\DownTo}{\binarykeyword{\algorithmicdownto}}
+\algnewcommand{\LAnd}{\binarykeyword{\algorithmicland}}
+\algnewcommand{\LForAll}{\binarykeyword{\algorithmiclforall}}
+\algnewcommand{\Mod}{\binarykeyword{\algorithmicmod}}
+\algnewcommand{\To}{\binarykeyword{\algorithmicto}}
+
+% Define algorithmic literal text
+\algnewcommand{\algorithmicfalse}{false}
+\algnewcommand{\algorithmictrue}{true}
+
+% Define algorithmic literals
+\newcommand*{\literal}[1]{\textproc{#1} }
+\algnewcommand{\False}{\literal{\algorithmicfalse}}
+\algnewcommand{\True}{\literal{\algorithmictrue}}
+
+% Define algorithmic primitives
+\newcommand*{\primitive}[1]{\textit{#1}\ifmmode\thinspace\fi}
+\newcommand*{\base}{\primitive{base}}
+\newcommand*{\discriminatorFunction}{\primitive{discriminatorFunction}}
+\newcommand*{\discriminatorFunctions}{\primitive{discriminatorFunctions}}
+\newcommand*{\hashFunction}{\primitive{hashFunction}}
+\newcommand*{\hashFunctions}{\primitive{hashFunctions}}

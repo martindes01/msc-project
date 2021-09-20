@@ -1,0 +1,39 @@
+@startuml
+hide empty members
+
+interface Summary {
++ merge(other)
+}
+
+interface MultisetSummary extends Summary {
++ update(item, weight)
+}
+
+interface IdentificationSummary extends MultisetSummary {
++ getHashValue()
+}
+
+interface FrequencySummary extends MultisetSummary {
++ getFrequency(item)
+}
+
+interface RankSummary extends MultisetSummary {
++ getRank(item)
+}
+
+interface QuantileSummary extends MultisetSummary {
++ getItem(rank);
+}
+
+class Fingerprint implements IdentificationSummary {
++ Fingerprint()
+}
+
+class CountSketch implements FrequencySummary {
++ CountSketch(rows, columns)
+}
+
+class DyadicCountSketch implements RankSummary, QuantileSummary {
++ DyadicCountSketch(rows, columns)
+}
+@enduml

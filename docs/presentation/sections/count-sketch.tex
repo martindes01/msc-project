@@ -1,0 +1,168 @@
+\part{The Count Sketch}
+
+\section{The Count Sketch}
+
+\subsection{Overview}
+
+\begin{frame}
+  \frametitle{Overview}
+
+  \begin{block}<1->{Frequency Summary}
+    \begin{itemize}
+      \item Represents a stream of arbitrary length as an \( m \times n \) array of counters
+      \item Query for approximate frequencies
+      \item Positive or negative integer item
+      \item Positive or negative real-valued weight
+    \end{itemize}
+  \end{block}
+
+  \begin{block}<2->{Pairwise Hash Functions}
+    \begin{itemize}
+      \item Hash function \( h \colon \integers \to \dataintegerinterval{n}; \enspace x \mapsto ((\alpha \cdot x + \beta) \bmod p) \bmod n \)
+      \item Discriminating hash function \( g \colon \integers \to \dataset{-1, +1}; \enspace x \mapsto 2 \cdot (((\gamma \cdot x + \theta) \bmod p) \bmod 2) - 1 \)
+      \item Pairwise independent
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Applications}
+
+\begin{frame}
+  \frametitle{Applications}
+
+  \begin{block}{A Versatile Summary}
+    \begin{itemize}
+      \item Distributed denial of service
+      \begin{itemize}
+        \item Detection
+        \item Victim tracking
+      \end{itemize}
+      \item Differential privacy
+      \begin{itemize}
+        \item Reduced size
+        \item Added noise
+      \end{itemize}
+      \item Compressed matrix multiplication
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{Theory}
+
+\begin{frame}
+  \frametitle{Example}
+
+  \begin{figure}
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+      \hline
+       & \( \action<6->{-}\action<2->{w_{b}} \) &  & \( \action<6->{+}\action<2->{w_{a}} \) &  & \( \action<6->{+}\action<2->{w_{c}} \) &  \\
+       &  &  &  &  &  &  \\
+      \hline
+      \( \action<6->{+}\action<3->{w_{b}} \) &  &  &  & \( \action<6-|alert@1->{-}\action<3-|alert@1->{w_{a}} \) &  &  \\
+       &  &  &  & \( \action<6-|alert@1->{-}\action<3-|alert@1->{w_{c}} \) &  &  \\
+      \hline
+       &  & \( \action<6-|alert@1->{+}\action<1-|alert@1->{w_{a}} \) &  &  &  & \( \action<6->{+}\action<1->{w_{c}} \) \\
+       &  & \( \action<6-|alert@1->{-}\action<1-|alert@1->{w_{b}} \) &  &  &  &  \\
+      \hline
+       & \( \action<6->{+}\action<4->{w_{b}} \) &  & \( \action<6->{-}\action<4->{w_{a}} \) &  & \( \action<6->{-}\action<4->{w_{c}} \) &  \\
+       &  &  &  &  &  &  \\
+      \hline
+       &  &  & \( \action<6->{+}\action<5->{w_{c}} \) &  & \( \action<6->{+}\action<5->{w_{a}} \) & \( \action<6->{-}\action<5->{w_{b}} \) \\
+       &  &  &  &  &  &  \\
+      \hline
+    \end{tabular}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example}
+
+  \begin{block}<1->{Get counters corresponding to \( a \)}
+    \begin{equation*}
+      w_{a}, \qquad -w_{a} - w_{c}, \qquad w_{a} - w_{b}, \qquad -w_{a}, \qquad w_{a}
+    \end{equation*}
+  \end{block}
+
+  \begin{block}<2->{Reapply discriminating hash functions corresponding to \( a \)}
+    \begin{equation*}
+      w_{a}, \qquad w_{a} + w_{c}, \qquad w_{a} - w_{b}, \qquad w_{a}, \qquad w_{a}
+    \end{equation*}
+  \end{block}
+
+  \begin{block}<3->{Sort and return the median}
+    \begin{equation*}
+      w_{a} - w_{b}, \qquad w_{a}, \qquad \alert{w_{a}}, \qquad w_{a}, \qquad w_{a} + w_{c}
+    \end{equation*}
+  \end{block}
+\end{frame}
+
+\subsection{Analysis}
+
+\begin{frame}
+  \frametitle{Probability Theory}
+
+  \begin{block}{A Chernoff Bound Argument}
+    \begin{itemize}
+      \item Probability that the median of \( \bigo{\ln (1 / \delta)} \) estimates is inaccurate has upper bound \( \delta \)
+      \begin{multline*}
+        \probability \Biggl( \sum_{i} X_{i} \geq \bigo[\bigg]{\ln \frac{1}{\delta}} \Biggr) < \delta, \\
+        X_{i} = \begin{cases}
+          0 & \text{if estimate~\( i \) is accurate,} \\
+          1 & \text{if estimate~\( i \) is inaccurate}
+        \end{cases}
+      \end{multline*}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Accuracy}
+
+  \begin{actionenv}<1->
+    \begin{equation*}
+      \action<1->{\hat{w}_{x, i} = g_{i} (x) \cdot C_{i, h_{i} (x)}}\action<2->{, \qquad C_{i, h_{i} (x)} = \smashoperator{\sum_{\substack{s \in U \\ h_{i} (s) = h_{i} (x)}}} g_{i} (s) \cdot w_{s}}
+    \end{equation*}
+  \end{actionenv}
+
+  \begin{actionenv}<2->
+    \begin{equation*}
+      \hat{w}_{x, i} = \smashoperator{\sum_{\substack{s \in U \\ h_{i} (s) = h_{i} (x)}}} g_{i} (x) \cdot g_{i} (s) \cdot w_{s}
+    \end{equation*}
+  \end{actionenv}
+
+  \begin{actionenv}<3->
+    \begin{equation*}
+      \absolute{w_{x} - \hat{w}_{x, i}} = \absolute[\Big]{\smashoperator{\sum_{\substack{s \in U \\ h_{i} (s) = h_{i} (x) \\ s \neq x}}} g_{i} (x) \cdot g_{i} (s) \cdot w_{s}}
+    \end{equation*}
+  \end{actionenv}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Accuracy}
+
+  \begin{align*}
+    \action<1->{\expectation \bigl( \absolute{w_{x} - \hat{w}_{x, i}} \bigr) &= \expectation \biggl( \absolute[\Big]{\smashoperator{\sum_{\substack{s \in U \\ h_{i} (s) = h_{i} (x) \\ s \neq x}}} g_{i} (x) \cdot g_{i} (s) \cdot w_{s}} \biggr) \\}
+    \action<2->{&\leq \smashoperator{\sum_{\substack{s \in U \\ h_{i} (s) = h_{i} (x) \\ s \neq x}}} \expectation \biggl( \absolute[\Big]{g_{i} (x) \cdot g_{i} (s) \cdot w_{s}} \biggr) \\}
+    \action<3->{&= \smashoperator{\sum_{\substack{s \in U \\ h_{i} (s) = h_{i} (x) \\ s \neq x}}} \expectation \Bigl( \absolute{w_{s}} \Bigr)}
+    \action<4->{= \smashoperator{\sum_{\substack{s \in U \\ h_{i} (s) = h_{i} (x) \\ s \neq x}}} \absolute{w_{s}}}
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Accuracy}
+
+  \begin{equation*}
+    \action<1->{\expectation \bigl( \absolute{w_{x} - \hat{w}_{x, i}} \bigr) = \smashoperator{\sum_{\substack{s \in U \\ h_{i} (s) = h_{i} (x) \\ s \neq x}}} \absolute{w_{s}} = \frac{1}{n} \cdot \smashoperator{\sum_{\substack{s \in U \\ s \neq x}}} \absolute{w_{s}}}
+    \action<2->{\leq \frac{\lnorm{1}{\mathvector{w}}}{n}}
+  \end{equation*}
+
+  \begin{block}<2->{Size of the Array}
+    \begin{itemize}
+      \item \( n = 1 / \varepsilon \) columns
+      \item Expected absolute error at most \( \varepsilon \cdot \lnorm{1}{\mathvector{w}} \)
+      \item \( m = \ln (1 / \delta) \) rows
+      \item Probability median exceeds expected error at most \( \delta \)
+    \end{itemize}
+  \end{block}
+\end{frame}

@@ -1,0 +1,23 @@
+\begin{algorithmic}[1]
+  \In the two ordered pairs \( \cramped{A, B \in \integers^{\lambda \times m \times n} \times \integers^{(L - \lambda) \times u / 2^{\lambda}}} \) to merge (\( \hashFunctions (G_{l}) = \hashFunctions (H_{l}) \) \LAnd{} \( \discriminatorFunctions (G_{l}) = \discriminatorFunctions (H_{l}) \) \LForAll{} \( l \in \dataintegerinterval{\lambda} \))
+  \Out the merged pair \( \cramped{T \in \integers^{\lambda \times m \times n} \times \integers^{(L - \lambda) \times u / 2^{\lambda}}} \)
+  \Constant the number \( L = \ceiling{\lg u} \) of levels in the dyadic structure; the number \( \lambda = \floor{\lg (u / (m \cdot n))} + 1 \) of lower levels in the dyadic structure
+  \Function{Merge}{\relaxedmath{A}, \relaxedmath{B}}
+    \State \( \datasequence{G, P} \gets A \)
+    \State \( \datasequence{H, Q} \gets B \)
+    \State \( \cardinality{C} \gets \lambda \)
+    \State \( \cardinality{D} \gets L - \lambda \)
+    \ForAll{\( l \in \dataintegerinterval{L} \)}
+      \If{\( l < \lambda \)}
+        \State \( C_{l} \gets \dataarray{(G_{l})_{i, j} + (H_{l})_{i, j}}_{m \times n} \)
+        \State \( \hashFunctions (C_{l}) \gets \hashFunctions (G_{l}) \)
+        \State \( \discriminatorFunctions (C_{l}) \gets \discriminatorFunctions (G_{l}) \)
+      \Else
+        \State \( l' \gets l - \lambda \)
+        \State \( D_{l'} \gets \datasequence{(P_{l'})_{x} + (Q_{l'})_{x}}_{u / 2^{l'}} \)
+      \EndIf
+    \EndFor
+    \State \( T \gets \datasequence{C, D} \)
+    \State \Return \( T \)
+  \EndFunction
+\end{algorithmic}

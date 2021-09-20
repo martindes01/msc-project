@@ -1,0 +1,10 @@
+\begin{algorithmic}[1]
+  \In the two arrays \( A, B \in \realnumbers^{m \times n} \) of counters to merge (\( \hashFunctions (A) = \hashFunctions (B) \) \LAnd{} \( \discriminatorFunctions (A) = \discriminatorFunctions (B) \))
+  \Out the merged array \( C = \dataarray{A_{i, j} + B_{i, j}}_{m \times n} \in \realnumbers^{m \times n} \)
+  \Function{Merge}{\relaxedmath{A}, \relaxedmath{B}}
+    \State \( C \gets \dataarray{A_{i, j} + B_{i, j}}_{m \times n} \)
+    \State \( \hashFunctions (C) \gets \hashFunctions (A) \)
+    \State \( \discriminatorFunctions (C) \gets \discriminatorFunctions (A) \)
+    \State \Return \( C \)
+  \EndFunction
+\end{algorithmic}

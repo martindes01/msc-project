@@ -1,0 +1,43 @@
+% Define command for relaxed math mode
+\newcommand*{\relaxedmath}[1]{\(#1\)\relax}
+
+% Define commands for delimited data structures
+\newcommand*{\suchthat}{}
+\DeclarePairedDelimiter{\dataarray}{\lbrack}{\rbrack}
+\DeclarePairedDelimiter{\dataintegerinterval}{\llbracket}{\rrbracket}
+\DeclarePairedDelimiterX{\datamultiset}[1]{\lbrace}{\rbrace}{\renewcommand*{\suchthat}{\suchthatsymbol[\delimsize]}#1}
+\DeclarePairedDelimiter{\datasequence}{\langle}{\rangle}
+\DeclarePairedDelimiterX{\dataset}[1]{\lbrace}{\rbrace}{\renewcommand*{\suchthat}{\suchthatsymbol[\delimsize]}#1}
+
+% Define commands for delimited operations
+\DeclarePairedDelimiter{\absolute}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\cardinality}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\ceiling}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\DeclarePairedDelimiterXPP{\norm}[1]{}{\lVert}{\rVert}{}{#1}
+\DeclarePairedDelimiterXPP{\lnorm}[2]{}{\lVert}{\rVert}{_{#1}}{#2}
+
+% Define commands for functions
+\newcommand*{\given}{}
+\DeclarePairedDelimiterXPP{\bigo}[1]{O}{\lparen}{\rparen}{}{#1}
+\DeclareMathOperator{\expectation}{E}
+\DeclareMathOperator{\indicator}{\mathbf{1}}
+\DeclareMathOperator*{\mean}{mean}
+\DeclareMathOperator*{\median}{median}
+\DeclareMathOperator{\probability}{\Pr}
+% \DeclarePairedDelimiterXPP{\probability}[1]{\Pr}{\lparen}{\rparen}{}{\renewcommand*{\given}{\givensymbol[\delimsize]}#1}
+
+% Define commands for sets of numbers
+\newcommand*{\integers}{\mathbb{Z}}
+\newcommand*{\nonnegativeintegers}{\mathbb{Z}_{0}^{+}}
+\newcommand*{\positiveintegers}{\mathbb{Z}^{+}}
+\newcommand*{\primes}{\mathbb{P}}
+\newcommand*{\realnumbers}{\mathbb{R}}
+
+% Define commands for styles
+\newcommand*{\mathvector}[1]{\mathbf{#1}}
+
+% Define commands for symbols
+\newcommand*{\givensymbol}[1][]{\nonscript\medspace#1\vert\allowbreak\nonscript\medspace\mathopen{}}
+\newcommand*{\niff}{\centernot\iff}
+\newcommand*{\suchthatsymbol}[1][]{\nonscript\medspace#1\vert\allowbreak\nonscript\medspace\mathopen{}}

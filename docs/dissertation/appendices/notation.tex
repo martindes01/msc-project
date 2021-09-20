@@ -1,0 +1,44 @@
+\chapter{Notation}
+\label{app:notation}
+
+Although pseudocode is intended to have no standard syntax, it is useful to follow some set of basic conventions in order to describe algorithms and their corresponding mathematics in a consistent and coherent manner.
+The conventions adopted in this text are based on those suggested in~\citep{smed06}.
+
+The algorithms are expressed as functions with no global side effects.
+They each take zero or more arguments and return a result.
+Each algorithm is accompanied by a description of the arguments it receives as input, the result it returns as output, the global constants it accesses and the local variables and structures it creates.
+Important preconditions, postconditions and constraints are given in parentheses.
+In order to avoid global side effects, input data structures are considered immutable, and a \Copy{} operator is provided to represent the defensive deep copy of a data structure.
+Primitive routines are used to provide associative relationships between values and arguments.
+For example, a value could be interpreted as an attribute of a given argument.
+In an object-oriented context, a primitive routine could be implemented as an attribute of a class that represents the argument, or in a more general imperative context, the arguments and values could be held in parallel or associative arrays.
+
+The data structures used in the mathematics and pseudocode are sets, multisets, sequences and arrays.
+Like a set, a multiset \( M = \dataset{x, y, z, z, y} \) has no explicit ordering, and the operation \( \cardinality{M} \) returns the cardinality of the multiset.
+A sequence \( S = \datasequence{x, y, z} \) does have an explicit order.
+An element at position~\( i \) of the sequence is accessed as \( S_{i} \) or \( (S)_{i} \).
+The operation \( \cardinality{S} \) returns the length of the sequence.
+Although sequences can be nested to represent arbitrary hierarchies, arrays are used to represent regular multidimensional data.
+An element in column~\( j \) of row~\( i \) in a two-dimensional array \( A \) is accessed as \( A_{i, j} \) or \( (A)_{i, j} \).
+For convenience, some matrix notation is used in the context of two-dimensional arrays.
+For example, \( \dataarray{0}_{m \times n} \) is used to represent an \( m \times n \) array in which each element is zero.
+
+The bounds of the interval of a loop index are always considered to be inclusive.
+Additionally, the implicit step size of an indexed loop, unless otherwise stated, is \( +1 \) over an increasing interval, or \( -1 \) over a decreasing interval.
+For consistency, all indexed data structures and operations are defined to have a base index of zero in both mathematics and pseudocode.
+An integer interval with inclusive bounds \( \alpha \) and \( \omega \) is represented by \( \dataintegerinterval{\alpha, \omega} \).
+For convenience, the shortcut notation \( \dataintegerinterval{n} \) is used to represent the integer interval \( \dataintegerinterval{0, n - 1} \).
+
+The integer division and modulo operations are represented by \Div{} and \Mod{}, respectively.
+There are multiple definitions of these operations that vary when either or both of the dividend and divisor are negative.
+Where this is the case, the applicable definition is given in the text.
+The binary logarithm is represented by \( \lg \), and the indicator function is defined according to \cref{eq:notation-indicator-function}.
+The symbols \( \integers \), \( \nonnegativeintegers \), \( \positiveintegers \), \( \primes \) and \( \realnumbers \) represent the sets of integers, non-negative integers, positive integers, prime numbers and real numbers, respectively.
+
+\begin{equation}
+  \label{eq:notation-indicator-function}
+  \indicator_{S} (x) = \begin{cases}
+    1 & \text{if } x \in S, \\
+    0 & \text{if } x \notin S.
+  \end{cases}
+\end{equation}
