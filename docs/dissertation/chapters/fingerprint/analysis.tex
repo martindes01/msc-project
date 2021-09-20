@@ -1,0 +1,138 @@
+\section{Analysis}
+\label{sec:fingerprint-analysis}
+
+\subsection{Accuracy}
+\label{subsec:fingerprint-analysis-accuracy}
+
+Recall that, in the context of a fingerprint summary, a stream is a sequence of arbitrary length whose elements are each an ordered pair \( \datasequence{x, w} \) of an integer item \( x \) drawn from the universe \( U = \dataintegerinterval{u} = \dataintegerinterval{0, u - 1} \) and a (positive or negative) integer weight \( w \).
+Thus, the final value of the fingerprint \( f \) constructed over the entirety of a stream \( \mathcal{S} \) is the sum modulo \( p \) over all pairs \( \datasequence{x, w} \) in the stream given by \cref{eq:fingerprint-analysis-accuracy-sum-stream}.
+This can be generalized to a sum over all possible values in the universe \( U \), evaluated over the finite field \( \dataintegerinterval{p} = \dataintegerinterval{0, p - 1} \), i.e.\@ modulo \( p \).
+This is formalized in \cref{eq:fingerprint-analysis-accuracy-sum-universe}, where \( w_{x} \) is the multiplicity of the item \( x \) in the underlying multiset \( S \) of the stream.
+
+\begin{align}
+  \label{eq:fingerprint-analysis-accuracy-sum-stream}
+  f &= \Bigl( \smashoperator{\sum_{\datasequence{x, w} \in \mathcal{S}}} w \cdot \alpha^{x} \Bigr) \bmod p. \\
+  \label{eq:fingerprint-analysis-accuracy-sum-universe}
+  \begin{split}
+    f &= \smashoperator{\sum_{x \in U}} w_{x} \cdot \alpha^{x} \pmod p, \qquad w_{x} = \cardinality[\big]{\datamultiset{s \in S \suchthat s = x}} \\
+    &= w_{u - 1} \cdot \alpha^{u - 1} + w_{u - 2} \cdot \alpha^{u - 2} + \dotsb \\
+    &\quad + w_{2} \cdot \alpha^{2} + w_{1} \cdot \alpha^{1} + w_{0} \cdot \alpha^{0} \pmod p.
+  \end{split}
+\end{align}
+
+This generalization is useful because it presents the fingerprint as a polynomial in the indeterminate \( \alpha \) of degree at most \( u - 1 \)~\citep{cormode20}.
+The degree of the polynomial is the greatest of the degrees of its terms \( w \cdot \alpha^{x} \).
+For \( x = 0 \), this term is constant, for \( x = 1 \) it is linear, and so forth.
+The greatest value \( x \in U \) is \( u - 1 \), for which both the term and the polynomial as a whole are \( (u - 1) \)-adic.
+Note that the number of complex roots of a polynomial, counting multiplicities, is equal to its degree~\citep{graham94}.
+There are, therefore, at most \( u - 1 \) integer roots \( \alpha \) for which the polynomial \( f \) evaluates to zero.
+
+To approximate whether two fingerprints \( f \) and \( f' \), computed using the same base \( \alpha \), represent the same multiset, their values are compared for equality, i.e.\@ \( f = f' \).
+If the fingerprints differ, the multisets they represent must also differ, and if the multisets are equal, their fingerprints must also be equal.
+There is, however, no logical equivalence between the equality of the fingerprints and the equality of the multisets~\citep{karp87}.
+This is formalized in \cref{eq:fingerprint-analysis-accuracy-inequality-implication,eq:fingerprint-analysis-accuracy-equality-implication,eq:fingerprint-analysis-accuracy-equality-inequivalence}.
+It is possible, therefore, for the equality test to pass even if the fingerprints do not represent the same multiset.
+
+\begin{alignat}{2}
+  \label{eq:fingerprint-analysis-accuracy-inequality-implication}
+  a \neq b &\implies & &S_{a} \neq S_{b}. \\
+  \label{eq:fingerprint-analysis-accuracy-equality-implication}
+  a = b &\impliedby & &S_{a} = S_{b}. \\
+  \label{eq:fingerprint-analysis-accuracy-equality-inequivalence}
+  a = b &\niff & &S_{a} = S_{b}.
+\end{alignat}
+
+The predicate \( f = f' \) could also be represented by the identity test \( \Delta f = f - f' = 0 \).
+The difference \( \Delta f \) is also a polynomial in \( \alpha \), and its degree is the greater of the degrees of \( f \) and \( f' \).
+There are, therefore, at most \( u - 1 \) integer roots \( \alpha \) for which \( \Delta f \) evaluates to zero.
+A false positive can only occur if the randomly chosen base \( \alpha \) is one of these roots.
+The probability of this event is determined by the relationship between the size \( u - 1 \) of the positive subset of the universe and the size \( p - 1 \) of the interval \( \dataintegerinterval{1, p - 1} \) from which \( \alpha \) is drawn.
+The lower bound of this interval cannot be zero, as \( \alpha = 0 \) would cause the non-constant terms of the polynomial to reduce to the zero polynomial, which is the only univariate polynomial with infinitely many roots~\citep{graham94}.
+Likewise, the upper bound of this interval cannot be \( p \), since the polynomial is evaluated in the finite field \( p \)---the non-constant terms of the polynomial would reduce to the zero polynomial in this case, too.
+Assuming the worst-case scenario in which the polynomial has the maximum number of roots \( u - 1 \), and that these roots are distinct, the probability of a false positive is given by \cref{eq:fingerprint-analysis-accuracy-false-positive}.
+Increasing the size \( p - 1 \) of the interval from which \( \alpha \) is drawn to be much greater than the size \( u \) of the universe would greatly reduce the probability of a false positive.
+More precisely, if the prime number \( p \) is chosen such that \( p - 1 \geq (u - 1) / \delta \) for some failure parameter \( 0 < \delta \leq 1 \), the probability of selecting a root of \( \Delta f \) from \( \dataintegerinterval{1, p - 1} \), and the probability of a false positive in the equality test, therefore, are at most \( \delta \).
+
+\begin{equation}
+  \label{eq:fingerprint-analysis-accuracy-false-positive}
+  \probability (\Delta f = 0 \givensymbol \alpha \in \dataintegerinterval{1, p - 1}) = \min \dataset[\bigg]{\frac{u - 1}{p - 1}, 1}.
+\end{equation}
+
+\subsection{Space and Time Complexities}
+\label{subsec:fingerprint-analysis-complexity}
+
+The only values that must be maintained in order to construct the fingerprint of a stream are the prime number \( p \), the base \( \alpha \) and the current hash value \( f \).
+Thus, the fingerprint summary has a constant space complexity \( \bigo{1} \).
+In the algorithms presented in \cref{sec:fingerprint-theory}, the prime number is assumed to be a shared constant that is accessible to all operations.
+This is because the prime number determines the accuracy of the equality operation, and is given a value proportional to the size of the universe.
+In any given application, the size of the universe is fixed.
+Therefore, it does not make sense for multiple fingerprints to be constructed using different prime numbers.
+The base, on the other hand, is chosen during the initialization operation.
+It is, therefore, treated as a property of a fingerprint \( f \), and assigned to the primitive routine \( \base (f) \).
+For applications that must maintain a large number of fingerprint summaries, or in which space is critical, it may be useful to treat the base as a shared or static variable that, once initialized, is the same for all fingerprints.
+This would reduce the space overhead of a collection of two or more fingerprint summaries---since they are meant to be compared, maintaining only a single fingerprint would be pointless---but it would not change the overall space complexity class of the collection.
+
+The initialization, merge, query and equality operations all have constant time complexity \( \bigo{1} \), since these operations perform only simple tasks, such as random number generation, addition, multiplication and modulus, without any iteration or recursion.
+This leaves the update operation, which differs through its use of exponentiation.
+Since no operation can have a time complexity smaller than \( \bigo{1} \), exponentiation must have a time complexity of at least \( \bigo{1} \).
+Therefore, the time complexity of the update operation must be equal to that of exponentiation.
+An efficient algorithm for the computation of integer powers is \emph{exponentiation by squaring}~\citep{gueron12}, which, due to its use of powers of two, is particularly convenient for computation in the binary number system.
+Since the update operation can only ever raise the base \( \alpha \) to a non-negative exponent \( x \in U \), the negative case is excluded from the description of the exponentiation algorithm presented here.
+To compute \( \alpha^{x} \), the exponent \( x \) is first expressed in binary.
+Then, for each significant bit \( i \) of \( x \) in succession, starting with the least significant bit as bit~\( 0 \), \( \alpha \) is raised to the exponent \( 2^{i} \).
+This is done recursively, i.e.\@ each term \( \cramped{\alpha^{2^{i}}} \) is computed by squaring the previous term \( \cramped{\alpha^{2^{i - 1}}} \), apart from the base case \( \cramped{\alpha^{2^{0}}} = \alpha \).
+The power \( \alpha^{x} \) is the sum of these terms for all bits \( i \) in \( x \) that are set.
+This algorithm has linear time complexity in the number of significant bits of \( x \), which is given by \( \floor{\lg x} + 1 \).
+However, since the number of values that can be represented by a binary string varies exponentially with its length, and the number of significant bits is bound by the number of bits \( \floor{\lg u} + 1 \) of the upper bound of the universe, this time complexity is approximately constant for most values of \( x \).
+Thus, exponentiation by squaring, and the update operation as a whole, have constant amortized time complexity \( \bigo{1} \).
+Since the fingerprint is updated over the finite field \( \dataintegerinterval{p} \), the steps of the exponentiation algorithm can be computed modulo \( p \) so as to keep intermediate results of squaring no larger than \( p^{2} \)~\citep{cormode20}.
+The correctness of the update operation with the addition of these intermediate modulo operations can be verified using the distributive properties given in \cref{eq:fingerprint-analysis-complexity-modulo-addition,eq:fingerprint-analysis-complexity-modulo-multiplication}~\citep{graham94}.
+This change would prevent integer overflow, and also reduce the memory overhead of the update operation, without any change to the overall time and space complexity classes of the summary.
+
+\begin{align}
+  \label{eq:fingerprint-analysis-complexity-modulo-addition}
+  (a + b) \bmod n &\equiv \bigl( (a \bmod n) + (a \bmod n) \bigr) \bmod n. \\
+  \label{eq:fingerprint-analysis-complexity-modulo-multiplication}
+  (a \cdot b) \bmod n &\equiv \bigl( (a \bmod n) \cdot (a \bmod n) \bigr) \bmod n.
+\end{align}
+
+It would be useful to compare the fingerprint summary to a more traditional solution that does not originate from the streaming paradigm.
+Such a solution could be a hash table or associative array, in which each entry is a key--value pair of an item in the universe and its multiplicity in the underlying multiset of the stream.
+This class of solution has linear space complexity \( \bigo{u} \) in the size \( u \) of the universe.
+The initialization operation would involve constructing the array and setting its values to zero.
+Depending on the implementation language, and the exact implementation of its compilers or interpreters, this should have a time complexity no greater than \( \bigo{u} \)~\citep{bentley00}.
+The update operation would involve accessing an entry by index or key and incrementing its value by a given weight.
+Like the fingerprint update operation, this is done in constant amortized time \( \bigo{1} \).
+The merge operation would involve iterating through each of the \( \bigo{u} \) corresponding pairs of entries from two such arrays, and summing the corresponding values.
+This would take linear time \( \bigo{u} \).
+Testing whether every corresponding pair of entries in two hash tables of size \( \bigo{u} \) are equal would require iterating through all \( \bigo{u} \) pairs of corresponding items from the two tables and checking whether they are mapped to the same multiplicities.
+Since hash table search for a single key has constant amortized time complexity \( \bigo{1} \) and there are \( \bigo{u} \) keys, the equality operation would have an overall linear time complexity \( \bigo{u} \) in the size of the universe.
+Thus, the fingerprint summary provides far better space and time complexity than a hash table or associative array.
+
+Note that since the traditional solution maintains the entire multiset as an array, it cannot have any sensible query operation to identify the multiset in its entirety, other than a hash function.
+This what the fingerprint summary does---it identifies the multiset by computing its hash value.
+The hash function used is chosen such that it can be recomputed upon the arrival of a new datum without having to maintain a copy of previous data in the stream (see \cref{sec:fingerprint-overview}).
+
+\subsection{Domain of the Universe}
+\label{subsec:fingerprint-analysis-universe}
+
+For the guarantee of correctness to hold, the permissible universe of the multiset that a fingerprint summarizes must be a subset of the non-negative integers \( \nonnegativeintegers \).
+Negative items cannot be used directly, since raising the base \( \alpha \) to a negative exponent \( x \) would introduce \emph{poles}---points for which a function is undefined~\citep{beebe17}.
+The fingerprint function would no longer be polynomial in \( \alpha \), nor would it exist within the finite field \( \dataintegerinterval{p} \).
+The introduction of fractional terms would also cause an issue in the implementation of the equality operation due to floating-point arithmetic.
+Due to the finite precision of the floating-point representation, floating-point numbers cannot represent all rational numbers, in the same way that not all rational numbers can be represented in the decimal number system using a finite number of digits.
+Additionally, fractional parts that \emph{can} be represented by floating-point numbers may be rounded or truncated when they appear in combination with large integer parts.
+As a result, although floating-point addition and multiplication are both commutative, they are not necessarily associative or distributive~\citep{muller10}.
+Therefore, since there is no guarantee that two streams of the same multiset have the same ordering or number of elements, it is possible for two theoretically equal fingerprints to be represented by different floating-point values.
+The usual solution to this problem is to define a relative error threshold \( \varepsilon \), and consider two floating-point values equal if their difference is less than \( \varepsilon \).
+This type of `fuzzy' comparison is difficult to perfect, since \( \varepsilon \) must often scale with the magnitude of the values being compared, and numerical analysis is required to bound it~\citep{higham02}.
+Moreover, this method would increase the likelihood of a false positive, as it would allow \emph{similar} fingerprints to be considered \emph{equal}, even if they were to represent different multisets.
+
+Similarly, real-valued items and weights are not permitted, as these could result in fractional or algebraic terms.
+Nevertheless, there are ways in which problems that involve these sets of numbers can be adapted to work with the fingerprint summary.
+For example, negative integer items could first be shifted or otherwise mapped to positive integers.
+For a universe of \( n \)-bit two's complement signed integers, this could be achieved by shifting each value by \( 2^{n - 1} \), or, since the order of items in the universe is of no importance, by interpreting each value as an unsigned integer.
+This would map the universe \( \dataintegerinterval{-2^{n - 1}, 2^{n - 1} - 1} \) to \( \dataintegerinterval{2^{n}} \).
+In many applications, real-valued items and weights can be mapped to an integer multiple of either a smallest available denomination, a minimum precision worth considering, or a real-valued common divisor.
+For example, pound sterling can be mapped to pence, and kilograms can be mapped to grams, if no further precision is required.
+Even a universe of arbitrary objects can be used, if there exists a hash function that maps each distinct object to a unique non-negative integer hash value.

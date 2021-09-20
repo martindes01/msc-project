@@ -1,0 +1,105 @@
+\section{Theory}
+\label{sec:dyadic-count-sketch-theory}
+
+\begin{algorithm}
+  \caption{The dyadic count sketch initialization operation}
+  \label{alg:dyadic-count-sketch-theory-initialize}
+  \input{algorithms/dyadic-count-sketch/initialize.tex}
+\end{algorithm}
+
+The dyadic count sketch initialization operation is presented in \cref{alg:dyadic-count-sketch-theory-initialize}.
+A dyadic count sketch is initialized by creating a \( \lambda \)-tuple \( C \) of count sketches, and a \( (L - \lambda) \)-tuple \( D \) of frequency tables.
+For each lower level \( l < \lambda \) of the dyadic structure, a count sketch \( C_{l} \) is initialized according to \cref{alg:count-sketch-theory-initialize} by creating an \( m \times n \) array of counters and setting every element in the array to zero.
+The hash functions that map items to positions in the count sketch \( C_{l} \) are assigned to the primitive routine \( \hashFunctions (C_{l}) \), and of these, the hash function corresponding to row~\( i \) of \( C_{l} \) is represented by \( \hashFunction (C_{l}, i) \).
+Similarly, the discriminating hash functions that determine whether weights should be subtracted from or added to counters in \( C_{l} \) are represented by \( \discriminatorFunctions (C_{l}) \), and of these, the discriminating hash function corresponding to row~\( i \) of \( C_{l} \) is represented by \( \discriminatorFunction (C_{l}, i) \).
+For each upper level \( l \geq \lambda \) of the dyadic structure, the index \( l \) is adjusted to the zero-based index \( l' = l - \lambda \), and a frequency table \( D_{l'} \) is initialized by creating a sequence of length \( u / 2^{l} \) and setting every element to zero.
+The dyadic structure is returned as an ordered pair of \( C \) and \( D \).
+It is assumed that the size \( u \) of the universe, the number of rows \( m \), the number of columns \( n \) and the prime number \( p > n \) have been selected beforehand, and that from these values, the number of levels \( L = \ceiling{\lg u} \) and the number of lower levels \( \lambda = \floor{\lg (u / (m \cdot n))} + 1 \) have been calculated.
+
+\begin{algorithm}
+  \caption{The dyadic count sketch update operation}
+  \label{alg:dyadic-count-sketch-theory-update}
+  \input{algorithms/dyadic-count-sketch/update.tex}
+\end{algorithm}
+
+The dyadic count sketch update operation is presented in \cref{alg:dyadic-count-sketch-theory-update}.
+This operation updates a dyadic count sketch \( \datasequence{C, D} \) so as to include in its summary of the underlying multiset an increase in the multiplicity of item \( x \) by weight \( w \).
+For each level \( l \) of the dyadic structure, the item \( x \) is mapped to the index \( \upsilon \in \dataintegerinterval{u / 2^{l}} \) for which \( x \) is a member of the dyadic interval \( \dataintegerinterval{\upsilon \cdot 2^{l}, (\upsilon + 1) \cdot 2^{l} - 1} \).
+This is achieved by repeated floor division of \( x \) by two, i.e.\@ \( \upsilon = \floor{x / 2^{l}} \).
+If the level is a lower level \( l < \lambda \), the count sketch \( C_{l} \) is updated according to \cref{alg:count-sketch-theory-update} so as to include in its summary an increase in the multiplicity of item \( \upsilon \) by weight \( w \).
+If the level is an upper level \( l \geq \lambda \), the index \( l \) is adjusted to the zero-based index \( l' = l - \lambda \), and the frequency table \( D_{l'} \) is updated so as to include an increase in the multiplicity of item \( \upsilon \) by weight \( w \).
+This is achieved by adding \( w \) to the value at position~\( \upsilon \) of \( D_{l'} \).
+The values of the updated dyadic count sketch \( \datasequence{C', D'} \) are given by \cref{eq:dyadic-count-sketch-theory-update-lower,eq:dyadic-count-sketch-theory-update-upper}.
+
+\begin{alignat}{2}
+  \label{eq:dyadic-count-sketch-theory-update-lower}
+  (C'_{l})_{i, h_{l, i} (\floor{x / 2^{l}})} &= (C_{l})_{i, h_{l, i} (\floor{x / 2^{l}})} + g_{l, i} \Biggl( \floor[\bigg]{\frac{x}{2^{l}}} \Biggr) \cdot w & \quad &\forall\ \datasequence{l, i} \in \dataintegerinterval{0, \lambda - 1} \times \dataintegerinterval{m}. \\
+  \label{eq:dyadic-count-sketch-theory-update-upper}
+  (D'_{l - \lambda})_{\floor{x / 2^{l}}} &= (D_{l - \lambda})_{\floor{x / 2^{l}}} + w & \quad &\forall\ l \in \dataintegerinterval{\lambda, L - 1}.
+\end{alignat}
+
+\begin{algorithm}
+  \caption{The dyadic count sketch merge operation}
+  \label{alg:dyadic-count-sketch-theory-merge}
+  \input{algorithms/dyadic-count-sketch/merge.tex}
+\end{algorithm}
+
+Two dyadic count sketches can be merged into one.
+This operation allows the dyadic count sketch of a stream to be computed in parallel, i.e.\@ dyadic count sketches of distinct portions of a stream can be computed concurrently and eventually combined in order to obtain the dyadic count sketch of the stream as a whole.
+The dyadic count sketch merge operation is presented in \cref{alg:dyadic-count-sketch-theory-merge}.
+Merging two dyadic count sketches \( A = \datasequence{G, P} \) and \( B = \datasequence{H, Q} \) into a single dyadic count sketch \( T = \datasequence{C, D} \) involves merging the corresponding pair of summaries from \( A \) and \( B \) at each level \( l \) of the dyadic structure.
+For each lower level \( l < \lambda \), the two count sketches \( G_{l} \) and \( H_{l} \) are merged according to \cref{alg:count-sketch-theory-merge} into a single count sketch \( C_{l} \) through simple element-wise addition.
+This will only work if the two count sketches have the same size and are computed using the same sequences of hash functions, since the hash functions ensure that the dyadic intervals of \( U \) are mapped to the same positions in both count sketches, and that the same discriminating values are applied to update weights for intervals in corresponding positions.
+For each upper level \( l \geq \lambda \) of the dyadic structure, the index \( l \) is adjusted to the zero-based index \( l' = l - \lambda \), and the two frequency tables \( P_{l'} \) and \( Q_{l'} \) are merged into a single frequency table \( D_{l'} \), also through element-wise addition.
+This works because each element at position~\( \upsilon \) of a frequency table is simply the sum of all the weights corresponding to \( \upsilon \) with which the table has been updated.
+Thus, the merged dyadic count sketch \( T = \datasequence{C, D} \) is equivalent to the dyadic count sketch that would be obtained if all the updates to \( A \) and \( B \) were applied to a single dyadic count sketch.
+The values of the merged dyadic count sketch \( \datasequence{C, D} \) are given by \cref{eq:dyadic-count-sketch-theory-merge-lower,eq:dyadic-count-sketch-theory-merge-upper}.
+
+\begin{alignat}{2}
+  \label{eq:dyadic-count-sketch-theory-merge-lower}
+  (C_{l})_{i, j} &= (G_{l})_{i, j} + (H_{l})_{i, j} & \quad &\forall\ \datasequence{l, i, j} \in \dataintegerinterval{0, \lambda - 1} \times \dataintegerinterval{m} \times \dataintegerinterval{n}. \\
+  \label{eq:dyadic-count-sketch-theory-merge-upper}
+  (D_{l - \lambda})_{\upsilon} &= (P_{l - \lambda})_{\upsilon} + (Q_{l - \lambda})_{\upsilon} & \quad &\forall\ \upsilon \in \dataintegerinterval[\bigg]{\frac{u}{2^{L - \lambda}}} \quad \forall\ l \in \dataintegerinterval{\lambda, L - 1}.
+\end{alignat}
+
+\begin{algorithm}
+  \caption{The dyadic count sketch rank query operation}
+  \label{alg:dyadic-count-sketch-theory-rank-query}
+  \input{algorithms/dyadic-count-sketch/rank-query.tex}
+\end{algorithm}
+
+The dyadic count sketch rank query operation is presented in \cref{alg:dyadic-count-sketch-theory-rank-query}.
+This operation returns an approximation of the zero-based rank of an item \( x \) in the multiset summarized by the dyadic count sketch.
+For each level \( l \) of the dyadic structure, the item \( x \) is mapped to the index \( \upsilon \in \dataintegerinterval{u / 2^{l}} \) for which \( x \) is a member of the dyadic interval \( \dataintegerinterval{\upsilon \cdot 2^{l}, (\upsilon + 1) \cdot 2^{l} - 1} \).
+This is achieved by repeated floor division of \( x \) by two, i.e.\@ \( \upsilon = \floor{x / 2^{l}} \).
+If this interval is a right sibling in the binary tree of the dyadic intervals of \( U \), the approximate frequency of its left sibling is added to a cumulative rank \( r \).
+For a lower level \( l < \lambda \) of the dyadic structure, the approximate frequency of the interval is queried from the count sketch \( C_{l} \) according to \cref{alg:count-sketch-theory-query} using the index \( \upsilon - 1 \).
+For an upper level \( l < \lambda \) of the dyadic structure, the index \( l \) is adjusted to the zero-based index \( l - \lambda \), and the exact frequency of the interval is the value at position~\( \upsilon - 1 \) of the frequency table \( D_{l'} \).
+The final rank \( r \) of the item \( x \) is an approximation of the sum of the multiplicities of all items \( s < x \) in the multiset \( S \)
+This is formalized in \cref{eq:dyadic-count-sketch-theory-rank-query}.
+
+\begin{equation}
+  \label{eq:dyadic-count-sketch-theory-rank-query}
+  r \simeq \cardinality[\big]{\datamultiset{s \in S \suchthat s < x}}.
+\end{equation}
+
+\begin{algorithm}
+  \caption{The dyadic count sketch quantile query operation}
+  \label{alg:dyadic-count-sketch-theory-quantile-query}
+  \input{algorithms/dyadic-count-sketch/quantile-query.tex}
+\end{algorithm}
+
+The dyadic count sketch quantile query operation is presented in \cref{alg:dyadic-count-sketch-theory-quantile-query}.
+This operation returns an item \( x \) whose zero-based rank in the multiset summarized by the dyadic count sketch is approximately \( t \).
+This item is the leaf of the binary tree of  the dyadic intervals of \( U \) whose computed rank is closest to, but no more than, the target rank \( t \).
+Starting from the left root interval \( \dataintegerinterval{0, u / 2 - 1} \), the rank of the current node is computed.
+If the rank is less than the target rank \( t \), the right sibling of the current node is visited.
+The level immediately below is reached by visiting the left child of the resultant node.
+This process is repeated until the resultant node is a leaf \( \dataset{x} \).
+The item \( x \) held by this leaf is the item of the multiset \( S \) whose rank is approximately \( t \).
+This is formalized in \cref{eq:dyadic-count-sketch-theory-quantile-query}.
+
+\begin{equation}
+  \label{eq:dyadic-count-sketch-theory-quantile-query}
+  \cardinality[\big]{\datamultiset{s \in S \suchthat s < x}} \simeq t.
+\end{equation}

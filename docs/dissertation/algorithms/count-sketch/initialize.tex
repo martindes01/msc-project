@@ -1,0 +1,15 @@
+\begin{algorithmic}[1]
+  \Out the initial array \( C = \dataarray{0}_{m \times n} \) of counters
+  \Constant the number \( m \in \positiveintegers \) of rows in the array; the number \( n \in \positiveintegers \) of columns in the array; the prime number \( p \in \dataset{\phi \in \primes \suchthat \phi > n} \)
+  \Local the hash functions \( h_{i} \colon \integers \to \dataintegerinterval{n} \) that each map an item to a position in row~\( i \) of the array; the discriminating hash functions \( g_{i} \colon \integers \to \dataset{-1, +1} \) that each map an item to the sign adjustment of its update in row~\( i \) of the array
+  \Function{Initialize}{}
+    \State \( C \gets \dataarray{0}_{m \times n} \)
+    \ForAll{\( i \in \dataintegerinterval{m} \)}
+      \State \( \datasequence{\alpha_{i}, \beta_{i}} \gets \) pick uniformly at random from \( \dataintegerinterval{1, p - 1} \)
+      \State \( \hashFunction (C, i) \gets h_{i} \colon x \mapsto ((\alpha_{i} \cdot x + \beta_{i}) \Mod p) \Mod n \)
+      \State \( \datasequence{\gamma_{i}, \theta_{i}} \gets \) pick uniformly at random from \( \dataintegerinterval{1, p - 1} \)
+      \State \( \discriminatorFunction (C, i) \gets g_{i} \colon x \mapsto 2 \cdot (((\gamma_{i} \cdot x + \theta_{i}) \Mod p) \Mod 2) - 1 \)
+    \EndFor
+    \State \Return \( C \)
+  \EndFunction
+\end{algorithmic}

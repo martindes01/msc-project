@@ -1,0 +1,68 @@
+\section{Theory}
+\label{sec:count-sketch-theory}
+
+\begin{algorithm}
+  \caption{The count sketch initialization operation}
+  \label{alg:count-sketch-theory-initialize}
+  \input{algorithms/count-sketch/initialize.tex}
+\end{algorithm}
+
+The count sketch initialization operation is presented in \cref{alg:count-sketch-theory-initialize}.
+A count sketch is initialized by creating an \( m \times n \) array of counters and setting every element in the array to zero.
+For each row \( i \) of the array, two parameters \( \alpha_{i} \) and \( \beta_{i} \) are drawn uniformly at random from the integer interval \( \dataintegerinterval{1, p - 1} \) and used to define a linear hash function \( h_{i} \colon \integers \to \dataintegerinterval{n} \), which is assigned to the primitive routine \( \hashFunction (C, i) \).
+Additionally, for each row \( i \), another two parameters \( \gamma_{i} \) and \( \theta_{i} \) are drawn uniformly at random from the integer interval \( \dataintegerinterval{1, p - 1} \) and used to define a discriminating linear hash function \( g_{i} \colon \integers \to \dataset{-1, +1} \), which is assigned to the primitive routine \( \discriminatorFunction (C, i) \).
+It is assumed that the number of rows \( m \), the number of columns \( n \) and the prime number \( p > n \) have been selected beforehand.
+
+\begin{algorithm}
+  \caption{The count sketch update operation}
+  \label{alg:count-sketch-theory-update}
+  \input{algorithms/count-sketch/update.tex}
+\end{algorithm}
+
+The count sketch update operation is presented in \cref{alg:count-sketch-theory-update}.
+This operation updates a count sketch \( C \) so as to include in its summary of the underlying multiset an increase in the multiplicity of item \( x \) by weight \( w \).
+For each row \( i \) of the array, the counter at position~\( h_{i} (x) \) of that row is updated by adding the product of the discriminating value \( g_{i} (x) \) and the weight \( w \).
+If \( g_{i} (x) = -1 \), this is equivalent to subtracting \( w \) from the corresponding counter.
+If \( g_{i} (x) = +1 \), this is equivalent to adding \( w \) to the corresponding counter.
+The values of the updated count sketch \( C' \) are given by \cref{eq:count-sketch-theory-update}.
+
+\begin{equation}
+  \label{eq:count-sketch-theory-update}
+  C'_{i, h_{i} (x)} = C_{i, h_{i} (x)} + g_{i} (x) \cdot w \quad \forall\ i \in \dataintegerinterval{m}.
+\end{equation}
+
+\begin{algorithm}
+  \caption{The count sketch merge operation}
+  \label{alg:count-sketch-theory-merge}
+  \input{algorithms/count-sketch/merge.tex}
+\end{algorithm}
+
+Two count sketches can be merged into one.
+This operation allows the count sketch of a stream to be computed in parallel, i.e.\@ count sketches of distinct portions of a stream can be computed concurrently and eventually combined in order to obtain the count sketch of the stream as a whole.
+The count sketch merge operation is presented in \cref{alg:count-sketch-theory-merge}.
+Merging two count sketches \( A \) and \( B \) into a single count sketch \( C \) is a simple case of element-wise addition, as formalized in \cref{eq:count-sketch-theory-merge}, but this will only work if the two count sketches have the same size and are computed using the same sequences of hash functions.
+Since they are computed using the same hash functions, items are mapped to the same positions in both count sketches.
+Additionally, the same discriminating values are applied to update weights for items in corresponding positions.
+Thus, the merged count sketch \( C \) is equivalent to the count sketch that would be obtained if all the updates to \( A \) and \( B \) were applied to a single count sketch.
+
+\begin{equation}
+  \label{eq:count-sketch-theory-merge}
+  C_{i, j} = A_{i, j} + B_{i, j} \quad \forall\ \datasequence{i, j} \in \dataintegerinterval{m} \times \dataintegerinterval{n}.
+\end{equation}
+
+\begin{algorithm}
+  \caption{The count sketch query operation}
+  \label{alg:count-sketch-theory-query}
+  \input{algorithms/count-sketch/query.tex}
+\end{algorithm}
+
+The count sketch query operation is presented in \cref{alg:count-sketch-theory-query}.
+This operation returns an approximation of the frequency of an item \( x \) in the multiset summarized by the count sketch.
+The values of the counters corresponding to \( x \) are collected from all the positions to which \( x \) is mapped, into a multiset \( F \).
+The final approximation \( f \) of the frequency of \( x \) is the median value in \( F \).
+This is formalized in \cref{eq:count-sketch-theory-query}.
+
+\begin{equation}
+  \label{eq:count-sketch-theory-query}
+  f = \median_{i \in \dataintegerinterval{m}} \bigl( g_{i} (x) \cdot C_{i, h_{i} (x)} \bigr) \simeq \cardinality[\big]{\datamultiset{s \in S \suchthat s = x}}.
+\end{equation}

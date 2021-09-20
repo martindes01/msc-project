@@ -1,0 +1,25 @@
+\begin{algorithmic}[1]
+  \Out the ordered pair \( T = \datasequence{C, D} \) of the initial \( \lambda \)-tuple \( C = \datasequence{\dataarray{0}_{m \times n}}_{\lambda} \) of arrays of counters, and the initial \( (L - \lambda) \)-tuple \( D = \datasequence{\datasequence{0}_{u / 2^{l}}}_{l \in \dataintegerinterval{\lambda, L - 1}} \) of frequency tables
+  \Constant the number \( L = \ceiling{\lg u} \) of levels in the dyadic structure; the number \( \lambda = \floor{\lg (u / (m \cdot n))} + 1 \) of lower levels in the dyadic structure; the number \( m \in \positiveintegers \) of rows in each array; the number \( n \in \positiveintegers \) of columns in each array; the prime number \( p \in \dataset{\phi \in \primes \suchthat \phi > n} \)
+  \Local the hash functions \( h_{l, i} \colon \integers \to \dataintegerinterval{n} \) that each map an item to a position in row~\( i \) of array~\( l \); the discriminating hash functions \( g_{l, i} \colon \integers \to \dataset{-1, +1} \) that each map an item to the sign adjustment of its update in row~\( i \) of array~\( l \)
+  \Function{Initialize}{}
+    \State \( \cardinality{C} \gets \lambda \)
+    \State \( \cardinality{D} \gets L - \lambda \)
+    \ForAll{\( l \in \dataintegerinterval{L} \)}
+      \If{\( l < \lambda \)}
+        \State \( C_{l} \gets \dataarray{0}_{m \times n} \)
+        \ForAll{\( i \in \dataintegerinterval{m} \)}
+          \State \( \datasequence{\alpha_{l, i}, \beta_{l, i}} \gets \) pick uniformly at random from \( \dataintegerinterval{1, p - 1} \)
+          \State \( \hashFunction (C_{l}, i) \gets h_{l, i} \colon x \mapsto ((\alpha_{l, i} \cdot x + \beta_{l, i}) \Mod p) \Mod n \)
+          \State \( \datasequence{\gamma_{l, i}, \theta_{l, i}} \gets \) pick uniformly at random from \( \dataintegerinterval{1, p - 1} \)
+          \State \( \discriminatorFunction (C_{l}, i) \gets g_{l, i} \colon x \mapsto 2 \cdot (((\gamma_{l, i} \cdot x + \theta_{l, i}) \Mod p) \Mod 2) - 1 \)
+        \EndFor
+      \Else
+        \State \( l' \gets l - \lambda \)
+        \State \( D_{l'} \gets \datasequence{0}_{u / 2^{l}} \)
+      \EndIf
+    \EndFor
+    \State \( T \gets \datasequence{C, D} \)
+    \State \Return \( T \)
+  \EndFunction
+\end{algorithmic}

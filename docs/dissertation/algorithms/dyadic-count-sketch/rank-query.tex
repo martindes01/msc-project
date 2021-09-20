@@ -1,0 +1,28 @@
+\begin{algorithmic}[1]
+  \In the ordered pair \( \cramped{T \in \integers^{\lambda \times m \times n} \times \integers^{(L - \lambda) \times u / 2^{\lambda}}} \) to query; the item \( x \in U \) whose approximate rank in the multiset \( S \) to return
+  \Out the approximate rank \( r \in \nonnegativeintegers \) of the item in the multiset (\( r \simeq \cardinality{\datamultiset{s \in S \suchthat s < x}} \))
+  \Constant the number \( L = \ceiling{\lg u} \) of levels in the dyadic structure; the number \( \lambda = \floor{\lg (u / (m \cdot n))} + 1 \) of lower levels in the dyadic structure; the number \( m \in \positiveintegers \) of rows in the array
+  \Local the multiset \( F_{l} \in \integers^{m} \) of approximate frequencies of the preceding item in each level~\( l \)
+  \Function{Rank-Query}{\relaxedmath{T}, \relaxedmath{x}}
+    \State \( \datasequence{C, D} \gets T \)
+    \State \( r \gets 0 \)
+    \For{\( l \gets 0 \To (L - 1) \)}
+      \If{\( x \) is odd}
+        \If{\( l < \lambda \)}
+        \State \( F_{l} \gets \varnothing \)
+          \ForAll{\( i \in \dataintegerinterval{m} \)}
+            \State \( j \gets (\hashFunction (C_{l}, i))(x - 1) \)
+            \State \( k \gets (\discriminatorFunction (C_{l}, i))(x - 1) \)
+            \State \( F_{l} \gets F_{l} \cup \dataset{k \cdot (C_{l})_{i, j}} \)
+          \EndFor
+          \State \( r \gets r + \median F_{l} \)
+        \Else
+          \State \( l' \gets l - \lambda \)
+          \State \( r \gets r + (D_{l'})_{x - 1} \)
+        \EndIf
+      \EndIf
+      \State \( x \gets x \Div 2 \)
+    \EndFor
+    \State \Return \( r \)
+  \EndFunction
+\end{algorithmic}

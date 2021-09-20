@@ -1,0 +1,35 @@
+\section{Overview}
+\label{sec:fingerprint-overview}
+
+A fingerprint summary is a type of identification summary; it represents the underlying multiset---which may be very large---of a stream \( \mathcal{S} \) as a single, much smaller hash value.
+This allows two fingerprints to be compared for equality in order to determine whether they represent the same multiset~\citep{breslauer11}.
+In this context, each datum in the stream is an ordered pair of a non-negative integer item \( x \), and a (positive or negative) integer weight \( w \).
+The underlying multiset \( S \) comprises all items \( x \) that appear in the stream, and each weight \( w \) is a summand of the multiplicity of its corresponding item in the multiset.
+The universe \( U \) from which items are drawn is the integer interval \( U = \dataintegerinterval{u} = \dataintegerinterval{0, u - 1} \), where \( u - 1 \) is the greatest possible value that may appear in the stream~\citep{cormode20}.
+This is formalized in \cref{eq:fingerprint-overview-multiset,eq:fingerprint-overview-multiplicity}.
+
+\begin{gather}
+  \label{eq:fingerprint-overview-multiset}
+  S = \datamultiset[\big]{x \in \dataintegerinterval{u} \suchthat x \in \datasequence{x, w}} \quad \forall\ \datasequence{x, w} \in \mathcal{S}. \\
+  \label{eq:fingerprint-overview-multiplicity}
+  \cardinality[\big]{\datamultiset{s \in S \suchthat s = x}} = \smashoperator{\sum_{\datasequence{s, w} \in \mathcal{S}}} \indicator_{\dataset{x}} (s) \cdot w \quad \forall\ x \in S.
+\end{gather}
+
+Since a multiset maps items (or indices) to multiplicities, a multiset can be represented as a vector of multiplicities.
+This means that the fingerprint summary is a solution to the problem of testing for the equality of vectors or sets.
+This is a common task in computer science~\citep{breslauer11}.
+For example, simple database queries are frequently used to search relations for tuples with a subset of attributes that exactly match a set of given values.
+Another example of this problem in database management is the computation of joins, for which, again, tuples are found that match exactly according to a subset of their attributes~\citep{karp87}.
+The hash value maintained by a fingerprint summary could also be used as a checksum for validating the correct transmission of packets of data~\citep{tridgell96}.
+Although the fingerprint summary is used primarily to check for equality between multisets, multiple fingerprints could be used to check for similarity, since two sets with a large number of equal subsets are likely to be similar.
+The ability to check for similarity between vectors of data is useful for search engines, natural language processing and the computation of diffs between files~\citep{tridgell96}.
+Although the fingerprint summary is designed to represent multisets of integers, it can be adapted to handle any arbitrary type of data, including strings, as long as a suitable hash function can be found to map each distinct datum to a unique non-negative integer hash value (see \cref{subsec:fingerprint-analysis-universe}).
+
+A fingerprint \( f \) represents a multiset as a hash value in the integer interval \( \dataintegerinterval{0, p - 1} \), where \( p \) is a prime number greater than the upper bound \( u - 1 \) of the universe.
+The hash value is computed using a rolling hash function.
+This means that the hash value is easily updated for a new input, given only the old hash value and the new input~\citep{karp87}.
+This is similar to the computation of a moving average.
+The computation of the hash value requires a base \( \alpha \) that must be drawn uniformly at random from the integer interval \( \dataintegerinterval{1, p - 1} \).
+The base can be interpreted as a property of the fingerprint.
+Thus, in the following algorithms, the base of a fingerprint \( f \) is represented by the primitive routine \( \base (f) \).
+Each of the following algorithms is either adapted from, or designed according to the description of, the corresponding operation in the definitive literature~\citep{cormode20}.

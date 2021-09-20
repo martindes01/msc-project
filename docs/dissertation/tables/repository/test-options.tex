@@ -1,0 +1,19 @@
+\begin{tabular}{llp{6cm}r}
+  \toprule
+  Option key & Type & Description & Default value \\
+  \midrule
+  \lstinline{--directory} & \lstinline{String} & the directory against which paths are resolved & empty string \\
+  \lstinline{--name} & \lstinline{String} & the prefix to be used in generated filenames & \\
+  \lstinline{--delimiter} & \lstinline{String} & the coordinate delimiter in the existing or generated dataset & comma (,) \\
+  \lstinline{--input} & \lstinline{String} & the path to an existing dataset to be used in a performance test & empty string \\
+  \lstinline{--size} & \lstinline{int} & the number of item--weight pairs in the generated dataset & \num{65536} \\
+  \lstinline{--item-lower-bound} & \lstinline{int} & the lower bound of the universe from which items are drawn, inclusive & \\
+  \lstinline{--item-lower-bound} & \lstinline{int} & the upper bound of the universe from which items are drawn, inclusive & \\
+  \lstinline{--weight-lower-bound} & \lstinline{int} & the lower bound of the interval from which weights are drawn, inclusive & \\
+  \lstinline{--weight-lower-bound} & \lstinline{int} & the upper bound of the interval from which weights are drawn, inclusive & \\
+  \lstinline{--rows} & \lstinline{int} & the number of rows to be used in the constructed sketch & \\
+  \lstinline{--columns} & \lstinline{int} & the number of columns to be used in the constructed sketch & \\
+  \lstinline{--queries} & \lstinline{int} & the number of item-specific queries to perform on the constructed summary & \num{65536} \\
+  \lstinline{--runs} & \lstinline{int} & the number of times to run the test & \num{1} \\
+  \bottomrule
+\end{tabular}

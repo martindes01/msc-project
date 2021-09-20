@@ -1,0 +1,22 @@
+\begin{forest}
+  for tree = {
+    draw,
+    folder,
+    grow' = 0,
+  }
+  [/
+    [docs]
+    [src
+      [lib
+        [src
+          [main]
+          [test]
+        ]
+        [build.gradle]
+      ]
+      [gradlew]
+      [gradlew.bat]
+      [settings.gradle]
+    ]
+  ]
+\end{forest}

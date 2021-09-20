@@ -1,0 +1,76 @@
+\section{Theory}
+\label{sec:fingerprint-theory}
+
+\begin{algorithm}
+  \caption{The fingerprint summary initialization operation}
+  \label{alg:fingerprint-theory-initialize}
+  \input{algorithms/fingerprint/initialize.tex}
+\end{algorithm}
+
+The fingerprint initialization operation is presented in \cref{alg:fingerprint-theory-initialize}.
+A fingerprint \( f \) is initialized by setting its value to zero, and a base \( \alpha \) is drawn uniformly at random from the integer interval \( \dataintegerinterval{1, p - 1} \).
+This is assigned to the primitive routine \( \base (f) \).
+It is assumed that the prime number \( p > u - 1 \) has been selected beforehand.
+
+\begin{algorithm}
+  \caption{The fingerprint summary update operation}
+  \label{alg:fingerprint-theory-update}
+  \input{algorithms/fingerprint/update.tex}
+\end{algorithm}
+
+The fingerprint update operation is presented in \cref{alg:fingerprint-theory-update}.
+This operation updates a fingerprint \( f \) so as to include in its representation of the underlying multiset an increase in the multiplicity of an item \( x \) by weight \( w \).
+The value of the updated fingerprint \( f' \) is given by \cref{eq:fingerprint-theory-update}.
+
+\begin{equation}
+  \label{eq:fingerprint-theory-update}
+  f' = \left( f + w \cdot \alpha^{x} \right) \bmod p.
+\end{equation}
+
+\begin{algorithm}
+  \caption{The fingerprint summary merge operation}
+  \label{alg:fingerprint-theory-merge}
+  \input{algorithms/fingerprint/merge.tex}
+\end{algorithm}
+
+Two fingerprints can be merged into one.
+This operation allows the fingerprint of a stream to be computed in parallel, i.e.\@ fingerprints of distinct portions of a stream can be computed concurrently and eventually combined in order to obtain the fingerprint of the stream as a whole.
+The fingerprint merge operation is presented in \cref{alg:fingerprint-theory-merge}.
+Merging two fingerprints \( a \) and \( b \) into a single fingerprint \( f \) is a simple case of addition modulo \( p \), as formalized in \cref{eq:fingerprint-theory-merge}, but this will only work if the two fingerprints are computed using the same base.
+This should come as no surprise, since it is a generalization of the update operation; an update is the special case of the merger of one fingerprint \( a = f \), whose base is \( \alpha \), and another fingerprint \( b = w \cdot \alpha^{x} \), whose base is also \( \alpha \)---the only difference being that in the case of an update, the fingerprint \( b \) represents a multiset whose underlying set has a cardinality of one.
+
+\begin{equation}
+  \label{eq:fingerprint-theory-merge}
+  f = \left( a + b \right) \bmod p.
+\end{equation}
+
+\begin{algorithm}
+  \caption{The fingerprint summary query operation}
+  \label{alg:fingerprint-theory-query}
+  \input{algorithms/fingerprint/query.tex}
+\end{algorithm}
+
+For the sake of completeness, the fingerprint query operation is presented in \cref{alg:fingerprint-theory-query}.
+This operation simply returns the value of the fingerprint.
+To approximate whether two fingerprints represent the same multiset, their values can be compared for equality, but this will only work if the two fingerprints are computed using the same base.
+If the fingerprints differ, the multisets they represent must also differ.
+Additionally, if the multisets are equal, their fingerprints must also be equal.
+This is formalized in \cref{eq:fingerprint-theory-unequal-implication,eq:fingerprint-theory-equal-implication}.
+Note that if the fingerprints are equal, it is not necessarily the case that the multisets are equal, although for sufficiently large values of \( p \), it is highly likely that they are (see \cref{subsec:fingerprint-analysis-accuracy}).
+
+\begin{align}
+  \label{eq:fingerprint-theory-unequal-implication}
+  a \neq b \implies S_{a} \neq S_{b}. \\
+  \label{eq:fingerprint-theory-equal-implication}
+  a = b \impliedby S_{a} = S_{b}.
+\end{align}
+
+\begin{algorithm}
+  \caption{The fingerprint summary equality operation}
+  \label{alg:fingerprint-theory-equal}
+  \input{algorithms/fingerprint/equal.tex}
+\end{algorithm}
+
+A fingerprint equality operation can be defined for this comparison, as presented in \cref{alg:fingerprint-theory-equal}.
+This operation simply returns \True{} if the two fingerprints are equal, and \False{} otherwise.
+It is assumed that the fingerprints share the same base.

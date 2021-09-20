@@ -1,0 +1,42 @@
+% Use the empty page style for blank end-of-chapter pages
+\renewcommand*{\cleardoublepage}{
+  \clearpage
+  \ifodd\value{page}
+  \else
+    \hbox{}
+    \thispagestyle{empty}
+    \newpage
+  \fi
+}
+
+% Redefine the title format
+\makeatletter
+\renewcommand*{\maketitle}{
+  \begin{titlepage}
+    \null\vfill
+    \vspace{60pt}
+    \begin{center}
+      {\LARGE\@title\par}\vspace{3em}
+      {\large\begin{tabular}{c}\@author\end{tabular}\par}\vspace{6em}
+      Submitted towards the degree of\\{\large\degree\par}\vspace{1.5em}
+      Supervised by\\{\large\begin{tabular}{c}\supervisor\end{tabular}\par}\vspace{1.5em}
+      {\large\begin{tabular}{c}\school\end{tabular}\par}\vspace{1.5em}
+      {\large\@date\par}
+    \end{center}\par
+    \@thanks
+    \vfill\null
+  \end{titlepage}
+}
+\makeatother
+
+% Define an environment for preliminary sections
+\newenvironment*{frontsection}[1]{
+  \cleardoublepage
+  \thispagestyle{plain}
+  \null\vfill
+  \begin{center}
+    \textbf{#1}
+  \end{center}
+}{
+  \vfill\null
+}

@@ -1,0 +1,11 @@
+\begin{algorithmic}[1]
+  \Out the initial fingerprint \( f = 0 \)
+  \Constant the prime number \( p \in \dataset{\phi \in \primes \suchthat \phi > u} \)
+  \Local the base \( \alpha \in \dataintegerinterval{1, p - 1} \) used to update the fingerprint
+  \Function{Initialize}{}
+    \State \( f \gets 0 \)
+    \State \( \alpha \gets \) pick uniformly at random from \( \dataintegerinterval{1, p - 1} \)
+    \State \( \base (f) \gets \alpha \)
+    \State \Return \( f \)
+  \EndFunction
+\end{algorithmic}

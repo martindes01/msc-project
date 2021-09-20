@@ -1,0 +1,61 @@
+\section{Structure and Contributions}
+\label{sec:introduction-structure}
+
+\subsection{The Implementation Library}
+\label{subsec:introduction-structure-library}
+
+\begin{figure}
+  \centering
+  \input{figures/introduction/summaries.tex}%
+  \caption{Abridged class diagram of the \lstinline{summaries} package}
+  \label{fig:introduction-structure-library-summaries}
+\end{figure}
+
+The structure of the main \lstinline{summaries} package is shown in \cref{fig:introduction-structure-library-summaries}.
+This abridged class diagram omits the helper methods and utility classes that are described in the implementation sections of each summary chapter.
+The four operations common to all of the summaries studied in this project are
+\begin{enumerate*}
+  \item initialization, which sets the summary to its initial state;
+  \item update, which accepts a new datum from the stream and updates its summary of the data accordingly;
+  \item merge, which allows two summaries computed over distinct portions of the data to be combined; and
+  \item query, which returns the property of the data maintained by a particular summary.
+\end{enumerate*}
+The \lstinline{Summary} interface declares three abstract methods that are common to all implemented summaries.
+The \lstinline{merge} method corresponds to the merge operation of the summary, whereas the \lstinline{copy} and \lstinline{reset} methods do not correspond to operations described in literature, but exist instead to aid the development of wrapper classes such as implementations of Apache~Spark's \lstinline{AccumulatorV2}, which expects this functionality to be available~\citep{tasf14}.
+The \lstinline{MultisetSummary} interface extends \lstinline{Summary} and declares an abstract \lstinline{update} method that corresponds to the update operation of the summary.
+This method accepts an integer item and an integer weight.
+Thus, it is specific to summaries of integer multiset data.
+Placing this method in a separate interface allows for summaries of other types of data to extend the \lstinline{Summary} interface.
+For example, a summary of standard set data would not require a weight parameter in its update method, and counters such as the Morris counter do not require any update parameters at all~\citep{cormode20,morris78}.
+The \lstinline{IdentificationSummary}, \lstinline{FrequencySummary}, \lstinline{RankSummary} and \lstinline{QuantileSummary} interfaces extend \lstinline{MultisetSummary} to provide query methods for their corresponding classes of summary (see \cref{sec:introduction-aims}).
+This is necessary because different summaries require different parameters for queries and return different values.
+For example, the query method of an \lstinline{IdentificationSummary} simply returns a hash value of type \lstinline{long}, whereas that of a \lstinline{FrequencySummary} returns the approximate frequency of type \lstinline{int} of an item also of type \lstinline{int} given as an argument.
+By giving the query methods different names, summaries may inherit multiple query methods, as is the case for the \lstinline{DyadicCountSketch} class.
+The initialization operations are implemented by the constructors of the concrete \lstinline{Fingerprint}, \lstinline{CountSketch} and \lstinline{DyadicCountSketch} classes.
+
+For each summary class, a corresponding wrapper class has been developed to adapt the summary for use in the Apache~Spark stream processing framework as an implementation of \lstinline{AccumulatorV2}, which can be used as a shared variable in a parallel operation on a distributed dataset~\citep{tasf14}.
+This allows the performance and accuracy tests to be performed using the existing functionality of Apache~Spark.
+
+\subsection{The Written Work}
+\label{subsec:introduction-structure-work}
+
+The structure of the remainder of this text closely reflects the process followed during the project.
+It is recommended, therefore, to read each chapter and section in the order presented.
+\Cref{ch:fingerprint,ch:count-sketch,ch:dyadic-count-sketch} cover the fingerprint summary, count sketch and dyadic count sketch, respectively.
+Each of these chapters is split into the following sections:
+\begin{enumerate*}
+  \item overview, in which background information and an introductory description of the summary are provided;
+  \item theory, in which the operations of the summary are explained and formalized using pseudocode algorithms;
+  \item analysis, in which the accuracy, complexity and utility of the summary are discussed; and
+  \item implementation and evaluation, in which the Java implementation of the summary and its technicalities are discussed, and the methodology, results and analyses of the tests performed on the implementation are presented.
+\end{enumerate*}
+
+For the fingerprint summary and count sketch, the analyses include informal proof sketches of accuracy guarantees that are derived from those found in existing literature.
+Although these do not provide any new conclusions, they explicitly state much of the required knowledge that is assumed in the literature, and are presented in a manner more suitable as introductory material for those unfamiliar with probability theory and the analysis of streaming algorithms---of whom the author is one.
+For the dyadic count sketch, the proof sketch of the accuracy guarantee is omitted in favour of an original discussion on how the summary can be adapted to summarize extended multisets of both positive and negative integers.
+No such discussion was found elsewhere during the literature review.
+
+A discussion of the project itself is presented in \cref{ch:discussion}.
+This includes the reasoning behind some of the more interesting decisions made throughout the project, as well as its limitations, and recommendations towards how it could be extended or improved.
+For information regarding how to access and make use of the accompanying project repository, see \cref{app:repository}.
+The notation used throughout this text is described in \cref{app:notation}.

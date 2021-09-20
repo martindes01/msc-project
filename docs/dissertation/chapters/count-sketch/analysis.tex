@@ -1,0 +1,127 @@
+\section{Analysis}
+\label{sec:count-sketch-analysis}
+
+\subsection{Accuracy}
+\label{subsec:count-sketch-analysis-accuracy}
+
+Recall that, in the context of a count sketch, a stream is a sequence of arbitrary length whose elements are each an ordered pair \( \datasequence{x, w} \) of an integer item \( x \) drawn from the universe \( U \subset \integers \) and a (positive or negative) real-valued weight \( w \).
+Thus, the value of the counter \( C_{i, j} \) at position~\( j \) of row~\( i \) is, in terms of the stream \( \mathcal{S} \), the sum of the product of the discriminating value \( g_{i} (x) \) and the weight \( w \) corresponding to \( x \) for each item \( x \) that is mapped to position~\( j \) by the hash function \( h_{i} \), as given by \cref{eq:count-sketch-analysis-accuracy-element-stream}.
+Since each weight is a summand of the multiplicity of its corresponding item in the multiset, this can be generalized to a sum over all possible values in the universe \( U \) that are mapped to position~\( i \) by the hash function \( h_{i} \).
+This is formalized in \cref{eq:count-sketch-analysis-accuracy-element-universe}, where \( w_{x} \) is the multiplicity of the item \( x \) in the underlying multiset \( S \) of the stream.
+
+\begin{alignat}{2}
+  \label{eq:count-sketch-analysis-accuracy-element-stream}
+  C_{i, j} &= \smashoperator{\sum_{\substack{\datasequence{x, w} \in \mathcal{S} \\ h_{i} (x) = j}}} g_{i} (x) \cdot w & \quad &\forall\ \datasequence{i, j} \in \dataintegerinterval{m} \times \dataintegerinterval{n}. \\
+  \label{eq:count-sketch-analysis-accuracy-element-universe}
+  C_{i, j} &= \smashoperator{\sum_{\substack{x \in U \\ h_{i} (x) = j}}} g_{i} (x) \cdot w_{x} & \quad &\forall\ \datasequence{i, j} \in \dataintegerinterval{m} \times \dataintegerinterval{n}, \qquad w_{x} = \cardinality[\big]{\datamultiset{s \in S \suchthat s = x}}.
+\end{alignat}
+
+Since each item is mapped to a different position in each row, a collision in one row, regardless of its weight, is unlikely to affect the median value of the counters corresponding to the item~\citep{charikar02,cormode20}.
+Additionally, the discriminating hash functions help to spread the collisions evenly above and below the median.
+For the following analysis of the accuracy of a count sketch to hold, the hash functions \( h_{i} \colon \integers \to \dataintegerinterval{n} \) and \( g_{i} \colon \integers \to \dataset{-1, +1} \) must be pairwise independent, i.e.\@ the hash values of any pair of keys must be independent random variables and the probability of observing any pair of hash values must be uniform.
+The analysis also requires a few standard mathematical tools in order to derive upper bounds on errors.
+The Markov inequality given in \cref{eq:count-sketch-analysis-accuracy-markov-inequality} provides an upper bound on the probability that a non-negative random variable \( X \) exceeds some constant multiple \( k \) of its expected value~\citep{mitzenmacher05}.
+
+\begin{equation}
+  \label{eq:count-sketch-analysis-accuracy-markov-inequality}
+  \probability \bigl( X > k \cdot \expectation (X) \bigr) \leq \frac{1}{k}.
+\end{equation}
+
+A standard approach to picking an estimate that is accurate with high probability is to take the median of multiple estimates that are each accurate with at least constant probability.
+This works because more accurate estimates are likely to be found towards the middle of the sorted order, surrounded by estimates that are too high or too low.
+Thus, it is only possible for the median estimate to be inaccurate if at least half of the estimates are inaccurate.
+The Chernoff bound argument given in \cref{eq:count-sketch-analysis-accuracy-chernoff-bound-argument} is derived from the Markov inequality in \cref{eq:count-sketch-analysis-accuracy-markov-inequality} and provides an upper bound on the probability that at least half of \( \bigo{\ln (1 / \delta)} \) estimates are inaccurate, where \( X \) is the sum of the Bernoulli random variables that represent whether each estimate is inaccurate~\citep{mitzenmacher05}.
+This can be interpreted as an upper bound on the probability that the median of \( \bigo{\ln (1 / \delta)} \) estimates is an inaccurate final estimate.
+
+\begin{equation}
+  \label{eq:count-sketch-analysis-accuracy-chernoff-bound-argument}
+  \probability \Biggl( X \geq \bigo[\bigg]{\ln \frac{1}{\delta}} \Biggr) < \delta.
+\end{equation}
+
+The frequency estimator \( \hat{w}_{x, i} \) of an item \( x \) maintained in row~\( i \) is \( g_{i} (x) \cdot C_{i, h_{i} (x)} \), where the value of the counter \( C_{i, h_{i} (x)} \) is the sum of \( g_{i} (s) \cdot w_{s} \) for all items \( s \) that are also mapped to the position~\( h_{i} (x) \) in row~\( i \).
+Thus, the absolute error \( \absolute{w_{x} - \hat{w}_{x, i}} \) in the estimator is given by \cref{eq:count-sketch-analysis-accuracy-absolute-error}.
+This is the absolute value of the sum of \( g_{i} (x) \cdot g_{i} (s) \cdot w_{s} \) for all items \( s \) apart from \( x \) that are mapped to the position~\( h_{i} (x) \) in row~\( i \).
+
+\begin{equation}
+  \label{eq:count-sketch-analysis-accuracy-absolute-error}
+  \absolute{w_{x} - \hat{w}_{x, i}} = \absolute[\Big]{\smashoperator[r]{\sum_{\substack{s \in U \\ s \neq x}}} \indicator_{\dataset{h_{i} (x)}} \bigl( h_{i} (s) \bigr) \cdot g_{i} (x) \cdot g_{i} (s) \cdot w_{s}}.
+\end{equation}
+
+This allows the upper bound on the \( L^{1} \)~error of the estimator to be determined as follows.
+First, the expected value of the absolute error is be derived according to \cref{eq:count-sketch-analysis-accuracy-absolute-error-expected-value}.
+\begin{subequations}
+  \label{eq:count-sketch-analysis-accuracy-absolute-error-expected-value}
+  \begin{align}
+    \begin{split}
+      \expectation \bigl( \absolute{w_{x} - \hat{w}_{x, i}} \bigr) &= \expectation \biggl( \absolute[\Big]{\smashoperator[r]{\sum_{\substack{s \in U \\ s \neq x}}} \indicator_{\dataset{h_{i} (x)}} \bigl( h_{i} (s) \bigr) \cdot g_{i} (x) \cdot g_{i} (s) \cdot w_{s}} \biggr) \\
+      &\leq \smashoperator{\sum_{\substack{s \in U \\ s \neq x}}} \expectation \biggl( \absolute[\Big]{\indicator_{\dataset{h_{i} (x)}} \bigl( h_{i} (s) \bigr) \cdot g_{i} (x) \cdot g_{i} (s) \cdot w_{s}} \biggr),
+    \end{split}
+    \intertext{
+      and because \( \indicator \in \dataset{0, 1} \) and \( g_{i} (x) \cdot g_{i} (s) \in \dataset{-1, +1} \),
+    }
+    \begin{split}
+      \expectation \bigl( \absolute{w_{x} - \hat{w}_{x, i}} \bigr) &= \smashoperator{\sum_{\substack{s \in U \\ s \neq x}}} \expectation \Bigl( \indicator_{\dataset{h_{i} (x)}} \bigl( h_{i} (s) \bigr) \cdot \absolute{w_{s}} \Bigr) \\
+      &= \smashoperator{\sum_{\substack{s \in U \\ s \neq x}}} \expectation \Bigl( \indicator_{\dataset{h_{i} (x)}} \bigl( h_{i} (s) \bigr) \Bigr) \cdot \absolute{w_{s}},
+    \end{split}
+    \intertext{
+      and because the hash functions \( h_{i} \) are pairwise independent and map items uniformly to \( \dataintegerinterval{n} \), the probability \( \probability (h_{i} (s) = h_{i} (x)) \) of collision between \( x \) and \( s \) is \( 1 / n \).
+      Thus,
+    }
+    \begin{split}
+      \expectation \bigl( \absolute{w_{x} - \hat{w}_{x, i}} \bigr) &= \frac{1}{n} \cdot \smashoperator{\sum_{\substack{s \in U \\ s \neq x}}} \absolute{w_{s}} \\
+      &\leq \frac{\lnorm{1}{\mathvector{w}}}{n},
+    \end{split}
+  \end{align}
+\end{subequations}
+where \( \lnorm{1}{\mathvector{w}} \) is the \( L^{1} \)~norm of the vector \( \mathvector{w} \) of multiplicities \( w_{s} \) in the multiset \( S \) for all items \( s \in U \).
+By applying the Markov inequality given in \cref{eq:count-sketch-analysis-accuracy-markov-inequality} to the absolute error \( \absolute{w_{x} - \hat{w}_{x, i}} \), it is shown that the error in the estimate exceeds \( k \cdot \lnorm{1}{\mathvector{w}} / n \) with probability at most \( 1 / k \), or rather that the error is at most \( k \cdot \lnorm{1}{\mathvector{w}} / n \) with probability at least \( 1 - 1 / k \).
+This is formalized in \cref{eq:count-sketch-analysis-accuracy-absolute-error-bound}.
+
+\begin{equation}
+  \label{eq:count-sketch-analysis-accuracy-absolute-error-bound}
+  \probability \biggl( \absolute{w_{x} - \hat{w}_{x, i}} > k \cdot \frac{\lnorm{1}{\mathvector{w}}}{n} \biggr) \leq \frac{1}{k}.
+\end{equation}
+
+According to the Chernoff bound argument given in \cref{eq:count-sketch-analysis-accuracy-chernoff-bound-argument}, taking the median of \( \bigo{\ln (1 / \delta)} \) estimates---where the number of estimates is given by the number of rows \( m \) in the count sketch---reduces the probability of this error to \( \delta \)~\citep{cormode20}.
+Thus, a count sketch with \( m = \bigo{\ln (1 / \delta)} \) rows and \( n = \bigo{1 / \varepsilon} \) columns gives estimates whose absolute errors are at most \( \varepsilon \cdot \lnorm{1}{\mathvector{w}} \) with probability at least \( 1 - \delta \).
+A similar analysis can be performed to determine the upper bound on the \( L^{2} \)~error of the estimator.
+It follows that a count sketch with \( m = \bigo{\ln (1 / \delta)} \) rows and \( n = \bigo{1 / \varepsilon} \) columns gives estimates whose absolute errors are at most \( \absolute{\sqrt{\varepsilon}} \cdot \lnorm{2}{\mathvector{w}} \) with probability at least \( 1 - \delta \)~\citep{cormode20}.
+Since both the \( L^{1} \) and \( L^{2} \) error bounds are achieved by the same query operation, the upper bound on the error of the estimate returned is always the lower of the two.
+
+An alternative frequency summary to the count sketch is the count-min sketch.
+This has an almost identical construction to that of the count sketch, but instead of applying discriminating hash functions and returning the median estimate, it returns the minimum estimate~\citep{cormode05}.
+This gives a sightly better accuracy guarantee by a constant factor that does not affect the space complexity class, as it will only fail if \emph{all} of the estimates exceed the error threshold~\citep{cormode20}.
+Unlike the count-min sketch, however, the count sketch returns an unbiased estimator, since its collisions are distributed evenly above and below the median~\citep{charikar02}.
+This property is useful in minimizing error when combining the estimates of multiple count sketches, as in the dyadic count sketch (see \cref{ch:dyadic-count-sketch}).
+
+\subsection{Space and Time Complexities}
+\label{subsec:count-sketch-analysis-complexity}
+
+A count sketch maintains an \( m \times n \) array and two sets of \( m \) hash functions, where each hash function can be represented by two integer parameters.
+Thus, the overall space complexity of a count sketch is \( \bigo{m \cdot n} \).
+Substituting the ideal values \( m = \bigo{\ln (1 / \delta)} \) and \( n = \bigo{1 / \varepsilon} \) given in \cref{subsec:count-sketch-analysis-accuracy} results in a space complexity of \( \bigo{\ln (1 / \delta) \cdot 1 / \varepsilon} \).
+The error parameters \( \delta \) and \( \varepsilon \) do not relate to the size of the universe, but to the distribution of weight across the universe.
+The \( L^{1} \)~error bound is given in terms of the \( L^{1} \)~norm \( \lnorm{1}{\mathvector{w}} \), which is simply the cardinality of the underlying multiset of the stream.
+The \( L^{2} \)~error bound is given in terms of the \( L^{2} \)~norm \( \lnorm{2}{\mathvector{w}} \), which is the square root of the sum of squares of the multiplicities in the underlying multiset of the stream.
+If the structure of the data is known beforehand, a suitable value of \( \varepsilon \) can be calculated using estimates of the norm.
+Of course, if the structure is known in sufficient detail for an accurate estimate to be made, there is likely little need for a sketch at all.
+Hence, \( \delta \) and \( \varepsilon \) can simply be given any value that seems reasonable given the available space and desired accuracy of the application.
+Since \( \delta \) and \( \varepsilon \) are independent of the size \( \cardinality{U} \) of the universe, the space complexity \( \bigo{\ln (1 / \delta) \cdot 1 / \varepsilon} \) can be considered constant \( \bigo{1} \) in \( \cardinality{U} \).
+For sensible values of \( m \) and \( n \), this constant size \( m \cdot n \) should be less than the size \( \bigo{\cardinality{U}} \) of the more traditional solution that simply maintains a hash table or associative array in which each entry is a key--value pair of an item in the universe and its multiplicity in the underlying multiset of the stream.
+Indeed, the values of \( m \) and \( n \) are only sensible if this is the case, otherwise the count sketch would use more space than simply storing the entire underlying multiset of the stream, despite being less accurate.
+
+The initialization operation constructs an \( m \times n \) array and sets its values to zero.
+Depending on the implementation language, and the exact implementation of its compilers or interpreters, this should have a time complexity no greater than \( \bigo{m \cdot n} \)~\citep{bentley00}.
+It then picks hash function parameters for each of the \( m \) rows in \( \bigo{m} \) time.
+The update operation updates one counter on each of the \( m \) rows and therefore has linear time complexity \( \bigo{m} \) in the number of rows \( m \).
+The merge operation sums each of the \( m \cdot n \) pairs of corresponding counters in two count sketches.
+This takes \( \bigo{m \cdot n} \) time.
+The query operation retrieves the value of one counter from each of the \( m \) rows in \( \bigo{m} \) time, and then returns the median.
+Finding the median first requires the multiset of approximate frequencies \( F \) to be sorted.
+Since no comparison sort can have an average time complexity smaller than \( \bigo{m \cdot \log m} \)~\citep{cormen01}, the query operation has linearithmic time complexity \( \bigo{m \cdot \log m} \) in the number of rows \( m \).
+
+As previously mentioned, the values \( m \) and \( n \) are independent of the size \( \cardinality{U} \) of the universe.
+Thus, all of the count sketch operations can be considered to have constant time complexity \( \bigo{1} \) in \( \cardinality{U} \).
+Nevertheless, the update and query operations have much greater time overheads than those of the equivalent operations on the more traditional hash table or associative array solutions, even for small values of \( m \) and \( n \).
+For example, the query operation of the traditional solution would simply access the entry of an item by index or key in constant time \( \bigo{1} \) and return its value.
+The benefit of a count sketch, then, is based entirely on the space it saves.

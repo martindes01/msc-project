@@ -1,0 +1,17 @@
+\begin{tikzpicture}
+  \begin{loglogaxis}[
+    log basis x = 2,
+    log basis y = 10,
+    xlabel = {Dataset size},
+    xtick = {2^8, 2^12, 2^16, 2^20, 2^24},
+    ylabel = {\text{Construction time} / \si{\nano\second}},
+  ]
+    \addplot [mark=*,black] coordinates {
+      (256, 44277)
+      (4096, 638777)
+      (65536, 49027776)
+      (1048576, 743982676)
+      (16777216, 13091972575)
+    };
+  \end{loglogaxis}
+\end{tikzpicture}

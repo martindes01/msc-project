@@ -1,0 +1,86 @@
+\chapter{Discussion of the Project}
+\label{ch:discussion}
+
+Among the original contributions of this project are the implementation library and the evaluations performed on it.
+The implementations were performed in Java and evaluated on datasets using the Apache~Spark stream processing framework.
+Apache~Spark was chosen as, of the all the widely-used parallel processing frameworks developed by the Apache Software Foundation, including Apache~Hadoop~\citep{tasf06} and Apache~Flink~\citep{tasf11}, it is the most suitable for big data streams.
+It also supports a wide range of programming languages.
+Of these, Java was chosen for the implementations due to its widespread use and familiarity to the author.
+Another language considered for the implementations was Python.
+Like Java, Python is supported by Apache~Spark, is widely used and is familiar to the author.
+It also provides a convenient set of data structures.
+However, since it is a much higher-level language and is commonly executed via direct interpretation rather than intermediate compilation to bytecode~\citep{psf91}, it was concluded that it would be slower and less stable in the performance tests, which would make it more difficult to develop and run a suitable range of tests in the available time.
+
+When designing the structure and API of the library, it became necessary to select data types for the integer items and weights.
+The choice of data types would place bounds on the permissible universes of items and corresponding weights.
+Due to its common usage in the representation of integer data, it was decided to use the 32 bit \lstinline{int} data type for both items and weights.
+This allowed the implementation of the fingerprint summary to use the 64 bit \lstinline{long} data type for its prime number \( p \), which needed to be significantly larger than the upper bound of the universe of items.
+Since the base is drawn from \( \dataintegerinterval{1, p - 1} \) and the hash value is evaluated modulo \( p \), these two variables were also given the \lstinline{long} data type.
+
+One alternative considered was the use of \lstinline{long} to represent items, and the \lstinline{BigInteger} class to represent the prime, base and hash value.
+It is also possible to use \lstinline{BigInteger} to represent all of these variables.
+This would allow for greater flexibility in usage, since the \lstinline{BigInteger} class can represent integers to an arbitrary level of precision.
+However, this is less performant than the primitive data types since it requires additional space and time to process an arbitrary number of bits~\citep{o14}.
+Moreover, it is possible that the proportionality between the value and size of \lstinline{BigInteger} objects could have skewed the results of the performance tests in such a way that the effect of the data type on the execution time may have been indistinguishable from that of the operation being tested.
+It would also have introduced a problem regarding the implementation of the fingerprint initialization operation, which requires a prime number greater than the upper bound of the universe of items.
+Since \lstinline{BigInteger} can represent integers of any size, there is no obvious value to use as such an upper bound.
+The upper bound would instead need to be known at the time of initialization, so that it could be passed to the constructor.
+In the streaming paradigm, however, it is assumed that no information is known about the data before it arrives.
+It would thus be unreasonable to expect the upper bound to be known at the time of initialization.
+For these reasons, it was decided to use the \lstinline{int} and \lstinline{long} data types, which provide their own sensible upper bounds.
+
+The implementations produced during this project were intended as proofs of concept, and were designed to verify the functionality of the summaries, as well as their theoretical accuracy and performance guarantees.
+For this reason, it was concluded that the use of type parameters for items and weights would introduce unnecessary complexity to the project.
+Nevertheless, this feature would allow primitive wrappers and arbitrary-precision data types to be used interchangeably, even if only the primitive wrappers were to be used in tests~\citep{kiezun07}.
+This would also allow the count sketch---the only summary studied in this project that accepts real-valued weights---to use the \lstinline{Double} wrapper class or the arbitrary-precision \lstinline{BigDecimal} instead of \lstinline{int}.
+Now that the proofs of concept have been produced, it would be a good idea to reimplement the library with more of a focus towards flexibility of use in industry.
+
+The original plan for testing the algorithms was to evaluate them on published datasets.
+Before the time came to evaluate the algorithms, however, this plan was changed to use artificially generated data instead.
+The main reason behind this change was that the accuracy tests were intended to verify the accuracy guarantees and error bounds described in the analyses of the summaries.
+These could only be tested in a meaningful way by varying the properties of the data that the analyses suggested would determine the accuracy of the summaries.
+For example, the probability of the fingerprint summary falsely identifying two multisets as equal is dependent on the size of the universe from which items are drawn, and the error bounds of the count sketch and dyadic count sketch are functions of the multiplicities of the multisets.
+While it is possible to find existing datasets for which these properties vary, it is more difficult to find datasets for which the properties vary in a regular manner over a suitable range for testing.
+Moreover, it is near impossible to find such datasets for which just one of these properties varies, while the remaining control properties, including dataset size, data types, distribution of items and distribution of weights, remain constant.
+For this reason, it was decided to switch to the generation of artificial data, for which these properties could be precisely controlled.
+This allowed a wide range of values of these properties to be tested---from values for which the summaries should almost always be accurate to values for which they are more likely to fail.
+Note that although the ability to run performance tests on existing datasets was implemented, this feature was not used during the evaluation, as differences between the compositions of artificial and real data would affect only the accuracy of the summaries, not the time taken to construct them.
+The feature was not extended to the accuracy tests, as these require properties of the datasets, such as the \( L^{1} \)~norm or cardinality, to be known in order to give meaningful results.
+
+Before the accuracy tests had been fully designed, it was thought that for the fingerprint summary and count sketch, which can fail with a bound probability, some failures would be observed.
+This would allow the observed proportion of failures to be compared to the theoretical upper bound.
+However, when it came to designing the tests, it was realized that for a suitable range of property values to be tested, most of the failure bounds would be too small for a comparable number of runs to be performed.
+For example, the failure bound corresponding to the first accuracy test of the fingerprint summary was \num{8.36e-8}, which corresponds to odds of approximately one in \num{12}~million.
+This scale of testing was deemed infeasible given the hardware and time available for the project.
+For example, including the time taken to generate datasets for each run, the accuracy and performance tests for the dyadic count sketch alone took the best part of a day to complete.
+This process had to be repeated whenever a correction or improvement was made to the test classes.
+While the \num{25}~runs per series of tests pales in comparison to \num{12}~million, the resultant \num{125} accuracy runs per summary were sufficient to demonstrate that the probability of failure for the summaries was low.
+Had more time and more powerful hardware been available, it would have been possible not only for more runs to be performed, but also for additional tests to be performed on published datasets for verification, since the prior tests on controlled artificial data would lessen the need for the following tests to be so controlled.
+
+Of all the operations supported by the summaries studied in this project, performance is most critical for the update and query operations.
+Respectively, these operations construct a summary from the incoming data, and return the property it maintains.
+While it is certainly a benefit for the initialization operation to be quick, this is only performed once per summary, before the stream is even read.
+Likewise, while the merge operation is critical to allowing summaries to be constructed in parallel, the operation is intended to be performed far less frequently than the update operation, and parallelism may not necessarily be required by all applications that use a summary.
+The update operation tends to be performed more often than the query operation, since it must be performed once for every datum that arrives from the stream, whereas the query operation need only be performed when a more up-to-date value of the property is required.
+If the summary were stored on the central server of a large-scale application, for example, copies of the property may be held in cache servers that periodically query the central server~\citep{mershad10}.
+Since streaming algorithms are intended for use in applications that deal in real time with constantly changing data, the update operation must be efficient and quick.
+Therefore, it was decided to carry out the performance tests on the update operation.
+For all three of the summaries studied, the update operation is expected to have constant time complexity per datum in the size of the data (see \cref{subsec:fingerprint-analysis-complexity,subsec:count-sketch-analysis-complexity,subsec:dyadic-count-sketch-analysis-complexity}).
+Since the construction of a summary requires the update operation to be performed once for each datum in the stream, the construction time was expected to vary linearly with the size of the data.
+This is exactly what was observed.
+Had more time and more powerful hardware been available, it would have been interesting to perform similar tests for the query and merge operations.
+Although the size of a sketch is fixed after initialization, it would also have been interesting to test how construction time varies with the number of rows in the two sketch summaries, as this is expected not to be constant (see \cref{subsec:count-sketch-analysis-complexity,subsec:dyadic-count-sketch-analysis-complexity}).
+
+Another contribution of this project is the understanding of streaming algorithms presented in this text.
+An emphasis was placed on presenting the theory in a manner suitable for those unfamiliar with probability theory and the analysis of streaming algorithms.
+The reason for this emphasis is that much of the literature concerning the summaries studied in this project assumes prior knowledge of streaming algorithms and their analyses.
+The understanding presented in this text includes background information, descriptions of the algorithms using both formal pseudocode and thorough explanations, and analyses of accuracy, complexity and utility.
+For the fingerprint summary and count sketch, these analyses include proof sketches of accuracy guarantees and error bounds.
+For the dyadic count sketch, an original discussion has been presented concerning how the summary can be adapted to summarize extended multisets of both positive and negative items.
+For all three summaries, a comparison has been made to the more traditional method of storing a multiset as a hash table or associative array.
+
+One of the main reasons behind the choice of project was the author's interest in studying a new and challenging topic that had not been covered during the university course.
+Now that a reasonably large amount of knowledge has been gained on the subject, a good continuation of the project would be the study and implementation of more advanced streaming algorithms and summaries.
+For example, all three summaries studied in this project concern multiset data, but there also exist summaries for vectors, matrices and graphs, as well as streaming algorithms for machine learning problems such as clustering, regression and optimization~\citep{cormode20}.
+% It would also be exciting to design new streaming algorithms or to extend more existing streaming algorithms in a similar way to the extension to the dyadic count sketch.
+It would also be exciting to extend more existing summaries in a similar manner to the extension of the dyadic count sketch, or even to design new streaming algorithms from scratch.

@@ -1,0 +1,93 @@
+\section{Analysis}
+\label{sec:dyadic-count-sketch-analysis}
+
+\subsection{Accuracy}
+\label{subsec:dyadic-count-sketch-analysis-accuracy}
+
+If each constituent count sketch is initialized with \( m = \lg (\lg (u) / \varepsilon) \) rows and \( n = (1 / \varepsilon) \cdot \sqrt{\lg (u) \cdot \lg (\lg (u) / \varepsilon)} \) columns for some error parameter \( \varepsilon \), each approximate rank returned by the dyadic count sketch is guaranteed with constant probability to have an absolute error no greater than \( \varepsilon \cdot \cardinality{S} \)~\citep{cormode20}, where \( \cardinality{S} \) is the cardinality of the underlying multiset \( S \) of the stream.
+Although any frequency summary could be used in place of the count sketch, this error bound is particular to the count sketch and makes use of the fact that it returns an unbiased estimator (see \cref{subsec:count-sketch-analysis-accuracy}).
+Since the query operations compute the sum of multiple count sketch estimates, this property prevents the accumulation of errors that would be prevalent if a biased frequency summary, such as the count-min sketch, were used instead~\citep{cormode20}.
+For the error bound to hold, the multiplicity of each item in the multiset when the summary is queried must be non-negative.
+For target ranks \( t \geq \cardinality{S} \), the item returned is the greatest in the multiset \( S \).
+
+\subsection{Space and Time Complexities}
+\label{subsec:dyadic-count-sketch-analysis-complexity}
+
+A dyadic count sketch maintains \( l \) levels of frequency summaries.
+The frequency summaries of the \( \floor{\lg (u / (m \cdot n))} + 1 \) lower levels are each a count sketch of size \( m \times n \).
+For each of the remaining upper levels, the size \( u / 2^{l} \) of the reduced domain of \( U \) is less than the size \( m \cdot n \) of a count sketch, so a frequency table of size \( u /2^{l} \) is used instead.
+Thus, the overall space complexity of a dyadic count sketch is \( \bigo{\lg (u) \cdot m \cdot n} \).
+By substituting the ideal values of \( m \) and \( n \) given in \cref{subsec:dyadic-count-sketch-analysis-accuracy}, the space complexity of the dyadic count sketch is given by \cref{eq:dyadic-count-sketch-analysis-complexity-space}.
+
+\begin{equation}
+  \label{eq:dyadic-count-sketch-analysis-complexity-space}
+  \begin{split}
+    \bigo[\big]{\lg (u) \cdot m \cdot n} &= \bigo[\Bigg]{\lg (u) \cdot \lg \biggl( \frac{\lg u}{\varepsilon} \biggr) \cdot \frac{1}{\varepsilon} \cdot \sqrt{\lg (u) \cdot \lg \biggl( \frac{\lg u}{\varepsilon} \biggr)}} \\
+    &= \bigo[\Bigg]{\frac{1}{\varepsilon} \cdot \lg (u) \cdot \lg \biggl( \frac{\lg u}{\varepsilon} \biggr) \cdot \lg^{\frac{1}{2}} (u) \cdot \lg^{\frac{1}{2}} \biggl( \frac{\lg u}{\varepsilon} \biggr)} \\
+    &= \bigo[\Bigg]{\frac{1}{\varepsilon} \cdot \lg^{\frac{3}{2}} (u) \cdot \lg^{\frac{3}{2}} \biggl( \frac{\lg u}{\varepsilon} \biggr)}.
+  \end{split}
+\end{equation}
+
+Since a count sketch has a greater time complexity than a frequency table for each of its operations, the time complexities of the dyadic count sketch operations are determined by those of the count sketch.
+Thus, the time complexities of the dyadic count sketch initialization, update, merge, rank query and quantile query operations are \( \bigo{\lg (u) \cdot m \cdot n} \), \( \bigo{\lg (u) \cdot m} \), \( \bigo{\lg (u) \cdot m \cdot n} \), \( \bigo{\lg (u) \cdot m \cdot \log (m)} \) and \( \bigo{\lg (u) \cdot m \cdot \log (m)} \), respectively (see \cref{subsec:count-sketch-analysis-complexity}).
+
+It would be useful to compare the dyadic count sketch to a more traditional solution that does not originate from the streaming algorithm paradigm.
+Such a solution could be a hash table or associative array, in which each entry is a key--value pair of an item in the universe and either its multiplicity or its rank in the underlying multiset of the stream.
+Both of these solutions would have a space complexity of \( \bigo{u} \).
+The former would have an update time complexity of \( \bigo{1} \), as only one entry must be updated for each datum in the stream, and a query time complexity of \( \bigo{u} \), as the rank of an item must be computed as the sum of the multiplicities of all items less than it.
+The latter would have an update time complexity of \( \bigo{u} \), as the ranks of all items greater than the given item must be updated for each datum in the stream, and a query time complexity of \( \bigo{1} \), as the rank of an item is simply returned from the corresponding entry.
+Using the ideal values of \( m = \lg (\lg (u) / \varepsilon) \) and \( n = (1 / \varepsilon) \cdot \sqrt{\lg (u) \cdot \lg (\lg (u) / \varepsilon)} \), it is clear that a dyadic count sketch is significantly more compact and offers a good compromise between the time complexities of the update and query operations.
+
+\subsection{Domain of the Universe}
+\label{subsec:dyadic-count-sketch-analysis-universe}
+
+As it stands, the current definition of the dyadic count sketch requires that the items in the stream be drawn from the positive integer universe \( U = \dataintegerinterval{u} = \dataintegerinterval{0, u - 1} \)~\citep{cormode20}.
+By altering its operations, however, it is permissible for items to be drawn from an extended positive \emph{and} negative universe \( V = \dataintegerinterval{-u, u - 1} \).
+The rank of an item in the underlying multiset is still a zero-based standard competition rank that follows the natural order of the integer items of the universe, i.e.\@ the rank of an item in the multiset is the sum of the multiplicities of all items less than it.
+This extended universe contains twice as many values as the standard universe.
+Therefore, the dyadic count sketch requires an additional level at the bottom of its dyadic structure.
+This becomes the new level~\( 0 \).
+Since each level represents a dyadic interval of the universe, the additional level is indexed over a domain twice the size of that of the level immediately above it.
+
+\begin{figure}
+  \centering
+  \input{figures/dyadic-count-sketch/extended-binary-tree.tex}%
+  \caption{The dyadic intervals of extended universe \( V = \dataintegerinterval{-u, u - 1} = \dataintegerinterval{-4, 3} \)}
+  \label{fig:dyadic-count-sketch-analysis-universe-extended-binary-tree}
+\end{figure}
+
+The extended dyadic structure comprises \( L = \ceiling{\lg (2 \cdot u)} = \ceiling{\lg u} + 1 \) levels, of which \( \lambda = \floor{\lg (2 \cdot u / (m \cdot n))} + 1 = \floor{\lg (u / (m \cdot n))} + 2 \) are lower levels.
+Each level \( l \) is indexed over a reduced domain of \( V \), given by \( \dataintegerinterval{-u / 2^{l}, u / 2^{l} - 1} \), and each of the indices \( v \in \dataintegerinterval{-u / 2^{l}, u / 2^{l} - 1} \) can be mapped to and from a dyadic interval of \( V \), given by \( \dataintegerinterval{v \cdot 2^{l}, (v + 1) \cdot 2^{l} - 1} \).
+As with the standard dyadic structure, the reduced domain at level~\( 0 \) is the universe \( V \) itself, and each index in \( V \) is mapped to a singleton set containing itself.
+At level~\( L - 1 \), however, the reduced domain of the extended universe is \( \datamultiset{-1, 0} \), and these two indices are mapped to the dyadic intervals \( \dataintegerinterval{-u, -1} \) and \( \dataintegerinterval{0, u - 1} \), respectively.
+The binary tree formed from the dyadic intervals of \( V \) is shown in \cref{fig:dyadic-count-sketch-analysis-universe-extended-binary-tree}.
+The size of the frequency table at level~\( l \) is \( 2 \cdot u / 2^{l} = u / 2^{l - 1} \).
+
+\begin{algorithm}
+  \caption{The dyadic count sketch extended quantile query operation}
+  \label{alg:dyadic-count-sketch-analysis-universe-extended-quantile-query}
+  \input{algorithms/dyadic-count-sketch/extended-quantile-query.tex}
+\end{algorithm}
+
+Other than using the extended number of levels, number of lower levels and sizes of frequency tables in \cref{alg:dyadic-count-sketch-theory-initialize,alg:dyadic-count-sketch-theory-update,alg:dyadic-count-sketch-theory-merge,alg:dyadic-count-sketch-theory-rank-query}, the only substantial changes required are to the query operations.
+The approaches followed by these operations are the same as those of the standard query operations presented in \cref{sec:dyadic-count-sketch-theory}.
+The only major difference is that the root pair at level~\( L - 1 \) is indexed by \( -1 \) and \( 0 \), rather than \( 0 \) and \( 1 \).
+% For the extended rank query, this means that determining whether a node is a right sibling is no longer equivalent to checking whether its index is odd for the root level, in which the right node has the even index of zero.
+For the extended rank query, this means that determining whether the root node is on the right is no longer equivalent to checking whether its index is odd, as the right root node now has the even index of zero.
+This can be solved by extracting the final iteration of the loop and guarding it with the opposite check.
+For the extended quantile query, the first interval considered is still the left root interval, but this now has the index~\( -1 \).
+As in the standard quantile query, if the rank of the current node is less than the target rank \( t \), the right sibling of the current node is visited.
+The level immediately below is reached by visiting the left child of the resultant node.
+This process is repeated until the resultant node is a leaf \( \dataset{x} \).
+The item \( x \) held by this leaf is the item of the multiset \( S \) whose rank is approximately \( t \).
+This works because the indices of each level \( l \) of the extended structure are simply those of the level \( l - 1 \) in the standard structure shifted by \( -u / 2^{l} \).
+
+The dyadic count sketch extended quantile query operation is presented in \cref{alg:dyadic-count-sketch-analysis-universe-extended-quantile-query}.
+The multiplication on \cref{line:dyadic-count-sketch-extended-quantile-query-multiplication} maps the index \( x \) of the current node to that of its left child in the level immediately below.
+This step should not be performed when the current node is a leaf, since there is no level lower than level~\( 0 \).
+In \cref{alg:dyadic-count-sketch-theory-quantile-query}, this is achieved by performing the step at the start of each iteration on \cref{line:dyadic-count-sketch-quantile-query-multiplication}.
+This works only because the first interval considered by the standard quantile query operation has the index zero.
+In the extended quantile operation, this step must be guarded by a conditional check.
+As a result, the extended quantile operation has a greater time overhead, but this does not change its overall time complexity.
+Since both the for loop and the conditional check make a similar comparison on the index \( l \) of the level, it is possible to alter the loop to combine these checks.
+For some implementation languages and their compilers or interpreters, this will result in a small optimization.

@@ -1,0 +1,36 @@
+\section{Aims and Objectives}
+\label{sec:introduction-aims}
+
+The aims of this project are to investigate streaming algorithms, specifically those of the fingerprint summary, count sketch and dyadic count sketch, and to implement these algorithms to create an extensible library as proof of concept.
+In particular, the algorithms are to be understood theoretically, expressed formally in pseudocode, and analysed in order to reason about their correctness.
+Additionally, they are to be implemented in Java, and their performance and accuracy are to be evaluated on carefully designed artificial datasets.
+The results are to be analysed with respect to relevant literature and the properties of the datasets used.
+
+All three of the summaries chosen for this project concern multiset data, for which each datum in a stream is an ordered pair of an integer item and a weight.
+Each weight is interpreted as a summand of the multiplicity of its corresponding item in the underlying multiset of the stream.
+The multiset representation of data is useful due to the common occurrence of data in which each item is mapped to a quality, which could be interpreted as a frequency, weight or other useful value~\citep{singh07}.
+All three summaries accept both positive and negative weights, which represent the insertion and removal of items to and from the multiset, respectively.
+The dyadic count sketch has a restriction, however, that for the error bound described in \cref{subsec:dyadic-count-sketch-analysis-accuracy} to hold, the overall multiplicity of each item in the multiset must be non-negative when the summary is queried.
+
+The fingerprint summary represents a multiset as a single compact hash value, such that two fingerprint summaries can be compared for equality in order to determine whether they represent the same multiset~\citep{cormode20}.
+In this text, a summary of this type is said to belong to the class of `identification' summaries.
+The count sketch represents a multiset as a compact array of counters, such that it can be queried for the approximate multiplicity (frequency) of a given item in the underlying multiset of the stream~\citep{charikar02}.
+In this text, a summary of this type is said to belong to the class of `frequency' summaries.
+The dyadic count sketch represents a multiset as a dyadic structure of frequency summaries, such that it can be queried for the approximate rank of a given item in the underlying multiset of the stream---a \emph{rank} query, or for an item of approximately the given rank---a \emph{quantile} query~\citep{cormode05}.
+Thus, in this text, the dyadic count sketch is said to belong both to the class of `rank' summaries and to that of `quantile' summaries.
+
+The topic of streaming algorithms was chosen for this project because it appeared to be challenging and stimulating, especially as the author had no prior knowledge or experience of the subject, and only introductory knowledge of the field of algorithms and complexity.
+The fingerprint summary and dyadic count sketch were chosen specifically because these summaries do not have many implementations conveniently available online.
+This is particularly true of the dyadic count sketch, to the extent that one of its authors recently noted that it had not yet attracted \emph{any} such implementations~\citep{cormode20}.
+Although the count sketch has more available implementations than the other two summaries, its choice was necessitated by the use of the count sketch as a frequency summary in the dyadic count sketch.
+The rationales behind some of the more interesting decisions made throughout the project are described in \cref{ch:discussion}.
+
+Among the original contributions of this project are the implementation library and the evaluations performed on it.
+The library has been designed with usability and best practices in mind, although it should be noted that due to the theoretical nature of the project, i.e.\@ the library is intended as a proof of concept rather than a robust tool for use in industry, little emphasis is placed on such practical concerns in this text.
+For example, such tasks as the gathering of user requirements and the design of unit tests have been omitted, as these are not within the scope of the theoretical approach.
+Indeed, the unit testing of the streaming algorithms is not required, as the correctness of the preconditions and postconditions are verified via theoretical analysis before the algorithms are implemented.
+
+Another contribution of this project is the understanding of streaming algorithms presented in this text.
+In many cases, this is simply a more digestible---but no less detailed---depiction of the theory presented in the definitive literature.
+Nevertheless, the work does include some original analyses that compare the summaries to their traditional counterparts, and determine whether and, if so, how the universes from which items and weights are drawn can be extended beyond those discussed in their definitions.
+Such analyses do not appear prevalent in published literature concerning streaming algorithms.

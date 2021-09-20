@@ -1,0 +1,47 @@
+\section{Background}
+\label{sec:introduction-background}
+
+As a civilization, humanity generates and captures a vast quantity of data.
+This quantity is growing at an exponential rate, due not only to the proliferation of technologies such as ubiquitous computing, social media and the Internet of Things, but also to humankind's insatiable thirst for knowledge, which has been growing steadily ever since man first looked up at the stars and pondered his place in the universe.
+Indeed, while the Very Large Array radio telescope currently collects hundreds of terabytes of astronomical data each year~\citep{choi20}, when the Square Kilometre Array becomes operational in 2024, it will be able to collect up to \num{14}~exabytes of data~\citep{francis12} and store two~petabytes of it every day~\citep{choi20}.
+The storage and processing of such cosmic volumes of data presents obvious problems, not least because they are far in excess of what is economically feasible to store for any extended period of time.
+Moreover, the global capacity for the generation of data is increasing at a far greater rate than the global capacity for its storage~\citep{cormode20}.
+For example, the global computational capacity per capita doubled roughly every \num{18}~months between 1986 and 2007, whereas the global data storage capacity per capita doubled roughly every \num{40}~months during the same period~\citep{hilbert11}.
+The field of data science that concerns the analysis and management of data that are too vast to process via traditional methods is known as `big data'~\citep{ibm20}.
+Other sources of big data include the sequencing of genomes, which are approximately one~gigabyte per person~\citep{cormode20}, the diagnosis of medical conditions using machine learning, which requires the processing of high-resolution uncompressed images~\citep{yanase19}, and the tracking of social interactions and consumer activity~\citep{ibm20}.
+
+One solution to the problem of processing big data is the paradigm of \emph{streaming algorithms}.
+In this paradigm, data is represented as a stream of arbitrary length and arbitrary order~\citep{cormode20}.
+Streaming algorithms are used to construct \emph{summaries} of the data by considering each element one at a time.
+The summaries are designed to be significantly more compact than a representation of the data in its entirety.
+Often, a summary consists of only a handful of properties or a reduced array of the data, which is known as a `sketch'~\citep{babcock02}.
+Because a summary is so much more compact than the data from which it is built, the properties of the data that it maintains tend to be approximations rather than exact values.
+Additionally, since not all of the data is stored, only certain properties can be maintained by any particular summary.
+Nevertheless, since the compact summary is all that must be processed in order to honour a query regarding the original data with an approximate result, this takes significantly less time than the traditional approach of computing the result by storing and processing the data in its entirety, particularly since, in order to compute the updated values of properties, the latter approach often requires all the data to be reprocessed if a change is made to them~\citep{cormode20}.
+Different types of summary can be constructed in order to query different properties of data.
+
+A streaming algorithm is a type of online algorithm; it processes its input data one item at a time before the data is available in its entirety.
+The class of online algorithms provides solutions to the class of dynamic problems, for which efficient algorithms and data structures are used to compute properties of data whenever it changes~\citep{karp92}.
+Another type of online algorithm is the dynamic algorithm, which provides a solution to a dynamic problem with efficient time complexity, whereas a streaming algorithm provides a solution with efficient space complexity~\citep{demetrescu10}.
+Streaming algorithms are useful in applications that deal with large and constantly changing data, where it is not necessary to retain data after computing a result---data locality, or where approximation is permitted or even desired.
+For example, they can be used to compute queries and joins in databases~\citep{karp87}, to detect distributed denial-of-service attacks~\citep{liu11}, and to implement \emph{differential privacy}---the publication of otherwise private data in a reduced and anonymous form~\citep{cormode12}.
+Typically, the data in question are constantly changing in real time.
+In the traditional paradigm, supporting changes to the data being queried often requires storing or reprocessing the data in its entirety.
+For example, the traditional approach to supporting queries on the ranks of arbitrary elements in the data would involve constructing a frequency table over the data, updating it every time the data changes, and computing the rank of a given element as the sum of the frequencies of all elements less than it.
+For large datasets, this is inefficient in terms of both space and time.
+
+A streaming algorithm provides the ability to update and query data efficiently at any time without having to reprocess all of the previously encountered data.
+This is achieved by ensuring that its summary update operation is commutative.
+This allows a summary to be easily updated given only its current value and the next datum in the stream, and also ensures that the value of a summary is independent of the order in which the data appear in the stream.
+Another useful property arising from the use of commutative operations is that two summaries computed using the same commutative operation can often be combined into a single summary using that same operation.
+This allows summaries of distinct portions of data to be computed concurrently and eventually combined in order to obtain a summary of the data in its entirety~\citep{cormode20}.
+
+It could be argued that the most basic streaming algorithm is summation, which uses the commutative update operation of addition to produce a sum as its single-valued summary.
+Another trivial streaming algorithm is the \emph{moving average}.
+By maintaining the current arithmetic mean \( \overline{x}_{n} \) and the number of items \( n \) processed so far, it is possible to compute the arithmetic mean \( \overline{x}_{n + 1} \) of the union of the \( n \) previous items and item~\( (n + 1) \) without storing any of the items from the stream, as formalized in \cref{eq:introduction-background-moving-average}.
+The streaming algorithms studied in this project are significantly more substantial than these, however.
+
+\begin{equation}
+  \label{eq:introduction-background-moving-average}
+  \overline{x}_{n + 1} = \frac{\overline{x}_{n} + x_{n + 1}}{n + 1}
+\end{equation}

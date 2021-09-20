@@ -1,0 +1,57 @@
+\section{Overview}
+\label{sec:dyadic-count-sketch-overview}
+
+A dyadic count sketch is both a rank summary and a quantile summary; it summarizes the underlying multiset of a stream \( \mathcal{S} \) in such a way that it can be queried for an approximation of the rank of a given item in the multiset---a rank query, or for an item of a given rank---a quantile query~\citep{wang13}.
+In this context, each datum in the stream is an ordered pair of an integer item \( x \), and a (positive or negative) integer weight \( w \).
+The underlying multiset \( S \) comprises all items \( x \) that appear in the stream, and each weight \( w \) is a summand of the multiplicity of its corresponding item in the multiset.
+For now, the universe \( U \) from which items are drawn is assumed to be the non-negative integer interval \( U = \dataintegerinterval{u} = \dataintegerinterval{0, u - 1} \), where \( u - 1 \) is the greatest possible value that may appear in the stream.
+This is formalized in \cref{eq:dyadic-count-sketch-overview-multiset,eq:dyadic-count-sketch-overview-multiplicity}.
+
+\begin{gather}
+  \label{eq:dyadic-count-sketch-overview-multiset}
+  S = \datamultiset[\big]{x \in \dataintegerinterval{u} \suchthat x \in \datasequence{x, w}} \quad \forall\ \datasequence{x, w} \in \mathcal{S}. \\
+  \label{eq:dyadic-count-sketch-overview-multiplicity}
+  \cardinality[\big]{\datamultiset{s \in S \suchthat s = x}} = \smashoperator{\sum_{\datasequence{s, w} \in \mathcal{S}}} \indicator_{\dataset{x}} (s) \cdot w \quad \forall\ x \in S.
+\end{gather}
+
+\begin{figure}
+  \centering
+  \input{figures/dyadic-count-sketch/binary-tree.tex}%
+  \caption{The dyadic intervals of the universe \( U = \dataintegerinterval{u} = \dataintegerinterval{8} \)}
+  \label{fig:dyadic-count-sketch-overview-binary-tree}
+\end{figure}
+
+The dyadic count sketch is useful for applications that rely on order statistics or quantile values.
+Quantiles are points that split a probability distribution such that the probability of an observation in each of the resultant intervals is equal.
+Distributions are commonly split into four intervals by \emph{quartiles} or \num{100}~intervals by \emph{percentiles}.
+Quantiles are sometimes more useful than traditional statistics such as mean and variance.
+For example, the median---the central quartile---is not easily skewed by outliers (see \cref{subsec:count-sketch-analysis-accuracy}), and it is well known that for a normal distribution, roughly \SI{68}{\percent} of values lie within one standard deviation of the mean, roughly \SI{95}{\percent} lie within two standard deviations, and roughly \SI{99.7}{\percent} lie within three standard deviations~\citep{pukelsheim94}.
+Commercial database management systems typically use quantiles to estimate the size of intermediate relations, allowing query optimizations to be made~\citep{dasu02}.
+The comparison of the quantiles of database relations is also used as a measure of the similarity of the relations.
+This is useful during \emph{data cleansing}, which involves the detection and removal of inaccurate or incomplete records~\citep{dasu02}.
+
+A dyadic count sketch summarizes a multiset as a dyadic structure of \( L = \ceiling{\lg u} \) levels, each of which maintains a summary that can be queried for an approximation of the frequency of all items in the multiset that appear in a given dyadic interval of the universe.
+Each level \( l \) of the dyadic structure is indexed over a reduced domain of \( U \), given by \( \dataintegerinterval{u / 2^{l}} \), and each of the indices \( \upsilon \in \dataintegerinterval{u / 2^{l}} \) can be mapped to and from a dyadic interval of \( U \), given by \( \dataintegerinterval{\upsilon \cdot 2^{l}, (\upsilon + 1) \cdot 2^{l} - 1} \).
+Thus, at level~\( 0 \), the reduced domain is \( U = \dataintegerinterval{u} \) itself, and each index in \( U \) is mapped to a singleton set containing itself.
+Conversely, at level~\( L - 1 \) (the uppermost level), the reduced domain is \( \dataintegerinterval{1} = \dataset{0, 1} \), and these two indices are mapped to the dyadic intervals \( \dataintegerinterval{0, u / 2 - 1} \) and \( \dataintegerinterval{u / 2, u - 1} \), respectively.
+This structure of dyadic intervals can be represented as a binary tree~\citep{cormode20}, as shown in \cref{fig:dyadic-count-sketch-overview-binary-tree}.
+
+At each level \( l \), the approximate frequency associated with an index \( \upsilon \) corresponds to the frequency of all items in the multiset that appear in the dyadic interval \( \dataintegerinterval{\upsilon \cdot 2^{l}, (\upsilon + 1) \cdot 2^{l} - 1} \).
+In the binary tree of dyadic intervals of \( U \), a path can be found from any leaf \( \dataset{x} \) to one of the intervals in the root pair \( \datasequence{\dataintegerinterval{0, u / 2 - 1}, \dataintegerinterval{u / 2, u - 1}} \) at the uppermost level.
+The approximate zero-based rank \( r \) of the item \( x \) in the multiset is computed as the sum of the approximate frequencies of the left siblings of all nodes along this path that are themselves right siblings~\citep{cormode20}.
+This is in fact an approximation of the sum of the multiplicities of all items \( s < x \) in the multiset \( S \), as formalized in \cref{eq:dyadic-count-sketch-overview-rank}.
+An item \( x \) with approximately the given rank \( t \) in the multiset is computed by finding the path from one of the intervals in root pair \( \datasequence{\dataintegerinterval{0, u / 2 - 1}, \dataintegerinterval{u / 2, u - 1}} \) to a leaf \( \dataset{x} \) along which the computed rank \( r \) is closest to, but no more than, the target rank \( t \)~\citep{cormode20}.
+
+\begin{equation}
+  \label{eq:dyadic-count-sketch-overview-rank}
+  r \simeq \cardinality[\big]{\datamultiset{s \in S \suchthat s < x}}.
+\end{equation}
+
+The main frequency summary used by a dyadic count sketch is, of course, the count sketch (see \cref{ch:count-sketch}), which is used at each level \( l \) to summarize a reduced domain of size \( u / 2^{l} \) as an \( m \times n \) array of counters.
+For each level \( l \) such that the size \( u / 2^{l} \) of the reduced domain is less than the size \( m \cdot n \) of a count sketch, it is more efficient and accurate to maintain the true frequencies of items in a frequency table.
+The levels that each maintain a count sketch are the \emph{lower} levels, whereas those that each maintain a frequency table are the \emph{upper} levels.
+The number of lower levels \( \lambda \) is given by \( \floor{\lg (u / (m \cdot n))} + 1 \)~\citep{cormode20}.
+Thus, a dyadic count sketch can be represented as an ordered pair \( \datasequence{C, D} \) of a \( \lambda \)-tuple \( C \) of count sketches and a \( (L - \lambda) \)-tuple \( D \) of frequency tables.
+Each of the following algorithms is either adapted from, or designed according to the description of, the corresponding operation in the definitive literature~\citep{wang13}.
+The steps of the count sketch operations are provided for clarity.
+These operations are presented in further detail in \cref{sec:count-sketch-theory}.
